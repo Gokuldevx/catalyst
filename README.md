@@ -1,6 +1,6 @@
-# FounderBridge
+# Catalyst
 
-FounderBridge is an open platform designed to connect startup founders with talented technical co-founders. Founders can create profiles, share their startup ideas, and browse a pool of developers who can apply to join their projects. Developers can showcase their portfolios and specify what they’re looking for in a partnership, whether it’s equity, experience, or mentorship. Once matched, both parties can exchange contact details to kickstart their collaboration.
+Catalyst is an open platform designed to connect startup founders with talented technical co-founders. Founders can create profiles, share their startup ideas, and browse a pool of developers who can apply to join their projects. Developers can showcase their portfolios and specify what they’re looking for in a partnership, whether it’s equity, experience, or mentorship. Once matched, both parties can exchange contact details to kickstart their collaboration.
 
 ---
 

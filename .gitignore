@@ -18,3 +18,9 @@ dataconnect-generated/
 FounderBridge.code-workspace
 firestore.indexes.json
 remoteconfig.template.json
+.firebaserc
+apphosting.yaml
+bun.lockb
+storage.rules
+firebase.json
+database.rules.json

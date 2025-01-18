@@ -25,16 +25,12 @@ Catalyst is an open platform designed to connect startup founders with talented 
 
 ### **Frontend:**
 - **Framework/Library:** React.js
-- **State Management:** Redux or Context API
-- **Styling:** Tailwind CSS or Material-UI
-- **Routing:** React Router
-- **Communication:** Axios for API calls
+- **State Management:** Redux
+- **Styling:** Tailwind CSS
 
 ### **Backend:**
 - **Framework:** Node.js with Express.js
-- **Authentication:** JWT (JSON Web Tokens)
-- **Database:** MongoDB or PostgreSQL
-- **File Storage:** AWS S3 or Firebase for profile images
-- **Real-time Communication (Optional):** Socket.io for live chat or notifications
+- **Authentication:** Firebase Authentication
+- **Database:** Firebase Database
 
 ---

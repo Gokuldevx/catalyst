@@ -203,7 +203,9 @@ const DeveloperDashboard = () => {
         ideaId,
         coverLetter: applicationData.coverLetter,
         resume: applicationData.resume,
-        whatsappNumber: applicationData.whatsappNumber
+        whatsappNumber: applicationData.whatsappNumber,
+        developerId: "",
+        recruiterId: ""
       });
 
       if (result.success) {

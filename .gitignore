@@ -1,26 +1,27 @@
-# Firebase
-firebase/*.json
-firebase/*.rules
-firebase/.firebaserc
+# # Firebase
+# firebase/*.json
+# firebase/*.rules
+# firebase/.firebaserc
 
-# Node.js
-node_modules/**
-package-lock.json
+# # Node.js
+# node_modules/**
+# package-lock.json
 
-# IDE-specific files
-.vscode/
+# # IDE-specific files
+# .vscode/
 
-# Other
-.env
-functions/
-dataconnect/
-dataconnect-generated/
-FounderBridge.code-workspace
-firestore.indexes.json
-remoteconfig.template.json
-.firebaserc
-apphosting.yaml
-bun.lockb
-storage.rules
-firebase.json
-database.rules.json
+# # Other
+# .env
+# functions/
+# dataconnect/
+# dataconnect-generated/
+# FounderBridge.code-workspace
+# firestore.indexes.json
+# remoteconfig.template.json
+# .firebaserc
+# apphosting.yaml
+# bun.lockb
+# storage.rules
+# firebase.json
+# database.rules.json
+node_modules

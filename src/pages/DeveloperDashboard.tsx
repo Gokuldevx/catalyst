@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
 import { HiOutlineAcademicCap, HiOutlineBriefcase } from "react-icons/hi";
-import { BsPencil, BsBookmark, BsBookmarkFill } from "react-icons/bs";
+import { BsPencil, BsBookmark, BsBookmarkFill, BsBriefcase } from "react-icons/bs";
 import { Navbar } from "@/components/Navbar";
 import { useLocation } from "react-router-dom";
 import { getFirestore, doc, getDoc, collection, query, getDocs, updateDoc } from 'firebase/firestore';
@@ -249,7 +249,6 @@ const DeveloperDashboard = () => {
               Developer Dashboard
             </h1>
           </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Profile Section */}
             <Card className="lg:col-span-1 border-none shadow-xl bg-white">

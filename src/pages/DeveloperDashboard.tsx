@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getActiveJobs, submitApplication } from "@/lib/user";
+import { useNavigate } from "react-router-dom";
 
 interface DeveloperProfile {
   firstName: string;
@@ -53,6 +54,7 @@ interface Idea {
 }
 
 const DeveloperDashboard = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'all' | 'saved' | 'applied'>('all');
@@ -234,6 +236,10 @@ const DeveloperDashboard = () => {
     }
   };
 
+  const handleStorageNavigation = () => {
+    navigate('/developerstorage');
+};
+
   return (
     <>
       <Navbar />
@@ -248,7 +254,14 @@ const DeveloperDashboard = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
               Developer Dashboard
             </h1>
+            <Button
+              className="text-white shadow-lg 
+              bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
+              transform transition-all duration-300 ease-in-out
+              hover:scale-105 hover:shadow-xl
+              active:scale-95 active:shadow-md" onClick={ handleStorageNavigation }>Storage</Button>
           </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Profile Section */}
             <Card className="lg:col-span-1 border-none shadow-xl bg-white">

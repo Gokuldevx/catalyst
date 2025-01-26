@@ -12,7 +12,7 @@ export const RecommendationSection = () => {
             <h3 className="text-lg font-semibold mb-2">Got talent?</h3>
             <h2 className="text-4xl font-bold mb-12">Why Developers love us</h2>
           </div>
-          
+
           <div className="space-y-8">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-pink-100 rounded-lg shrink-0">
@@ -51,7 +51,7 @@ export const RecommendationSection = () => {
             </div>
           </div>
 
-         
+
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export const RecommendationSection = () => {
             <h3 className="text-lg font-semibold mb-2">Need talent?</h3>
             <h2 className="text-4xl font-bold mb-12">Why Founders love us</h2>
           </div>
-          
+
           <div className="space-y-8">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-pink-100 rounded-lg shrink-0">
@@ -101,7 +101,7 @@ export const RecommendationSection = () => {
             </div>
           </div>
 
-          
+
         </div>
       </div>
     </section>

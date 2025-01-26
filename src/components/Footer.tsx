@@ -16,7 +16,10 @@ const Footer = () => {
             </p>
             <p className="text-gray-300">
               Join our platform to discover opportunities that match your skills and aspirations, or find the perfect talent to grow your startup.
-            </p>
+            </p><br/>
+            <Link to="/about" className="block text-gray-300 hover:text-white transition-colors">
+                  About Us
+            </Link>
           </div>
 
           {/* Navigation Sections */}

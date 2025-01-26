@@ -43,7 +43,7 @@ export const ProfileCard = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-gray-700">{description}</p>
-        
+
         {skills && (
           <div className="space-y-2">
             <h4 className="font-semibold text-sm">Skills & Expertise</h4>
@@ -56,21 +56,21 @@ export const ProfileCard = ({
             </div>
           </div>
         )}
-        
+
         {idea && (
           <div className="space-y-2">
             <h4 className="font-semibold text-sm">Startup Idea</h4>
             <p className="text-gray-700">{idea}</p>
           </div>
         )}
-        
+
         {expectations && (
           <div className="space-y-2">
             <h4 className="font-semibold text-sm">Looking For</h4>
             <p className="text-gray-700">{expectations}</p>
           </div>
         )}
-        
+
         {(githubUrl || portfolioUrl) && (
           <div className="flex gap-3">
             {githubUrl && (

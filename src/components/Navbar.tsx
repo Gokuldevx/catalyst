@@ -40,9 +40,8 @@ export const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
           <Link 
             to="/" 
-            className="text-2xl font-extrabold text-primary tracking-tight hover:opacity-80 transition-opacity"
-          >
-            Catalyst - Collaborative Startup Growth
+            className="text-2xl font-extrabold text-primary tracking-tight hover:opacity-80 transition-opacity">
+            Catalyst
           </Link>
           <div className="flex gap-4 items-center">
             {showSignOut ? (
@@ -52,8 +51,7 @@ export const Navbar = () => {
                 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
                 transform transition-all duration-300 ease-in-out
                 hover:scale-105 hover:shadow-xl
-                active:scale-95 active:shadow-md"
-              >
+                active:scale-95 active:shadow-md">
                 Log Out
               </Button>
             ) : isHomePage && (

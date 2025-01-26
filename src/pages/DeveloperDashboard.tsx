@@ -4,12 +4,30 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
 import { HiOutlineAcademicCap, HiOutlineBriefcase } from "react-icons/hi";
-import { BsPencil, BsBookmark, BsBookmarkFill, BsBriefcase } from "react-icons/bs";
+import {
+  BsPencil,
+  BsBookmark,
+  BsBookmarkFill,
+  BsBriefcase,
+} from "react-icons/bs";
 import { Navbar } from "@/components/Navbar";
 import { useLocation } from "react-router-dom";
-import { getFirestore, doc, getDoc, collection, query, getDocs, updateDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  query,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getActiveJobs, submitApplication } from "@/lib/user";
@@ -57,18 +75,22 @@ const DeveloperDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'all' | 'saved' | 'applied'>('all');
+  const [activeTab, setActiveTab] = useState<"all" | "saved" | "applied">(
+    "all"
+  );
   const [savedIdeas, setSavedIdeas] = useState<string[]>([]);
   const [profile, setProfile] = useState<DeveloperProfile | null>(null);
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<DeveloperProfile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<DeveloperProfile | null>(
+    null
+  );
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [applicationData, setApplicationData] = useState({
     coverLetter: "",
     resume: "",
-    whatsappNumber: ""
+    whatsappNumber: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,13 +104,13 @@ const DeveloperDashboard = () => {
           toast({
             title: "Error",
             description: "User ID not found. Please try logging in again.",
-            variant: "destructive"
+            variant: "destructive",
           });
           return;
         }
 
         // Fetch developer profile
-        const profileRef = doc(db, 'developers', uid);
+        const profileRef = doc(db, "developers", uid);
         const profileSnap = await getDoc(profileRef);
 
         if (profileSnap.exists()) {
@@ -97,11 +119,11 @@ const DeveloperDashboard = () => {
 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         toast({
           title: "Error",
           description: "Failed to load dashboard data. Please try again.",
-          variant: "destructive"
+          variant: "destructive",
         });
         setLoading(false);
       }
@@ -114,16 +136,16 @@ const DeveloperDashboard = () => {
   useEffect(() => {
     const fetchIdeas = async () => {
       try {
-        console.log('Starting to fetch ideas...'); // Debug log
+        console.log("Starting to fetch ideas..."); // Debug log
         const ideasData = await getActiveJobs();
-        console.log('Received ideas data:', ideasData); // Debug log
+        console.log("Received ideas data:", ideasData); // Debug log
         setIdeas(ideasData);
       } catch (error) {
-        console.error('Error fetching ideas:', error);
+        console.error("Error fetching ideas:", error);
         toast({
           title: "Error",
           description: "Failed to fetch ideas. Please try again.",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     };
@@ -149,15 +171,15 @@ const DeveloperDashboard = () => {
   }
 
   const toggleSaveIdea = (ideaId: string) => {
-    setSavedIdeas(prev =>
+    setSavedIdeas((prev) =>
       prev.includes(ideaId)
-        ? prev.filter(id => id !== ideaId)
+        ? prev.filter((id) => id !== ideaId)
         : [...prev, ideaId]
     );
   };
 
-  const filteredIdeas = ideas.filter(idea => {
-    if (activeTab === 'saved') return savedIdeas.includes(idea.id);
+  const filteredIdeas = ideas.filter((idea) => {
+    if (activeTab === "saved") return savedIdeas.includes(idea.id);
     // Add applied ideas filter when you have that data
     return true;
   });
@@ -167,7 +189,7 @@ const DeveloperDashboard = () => {
 
     try {
       const db = getFirestore();
-      const profileRef = doc(db, 'developers', location.state.uid);
+      const profileRef = doc(db, "developers", location.state.uid);
       await updateDoc(profileRef, editedProfile);
 
       setProfile(editedProfile);
@@ -177,18 +199,18 @@ const DeveloperDashboard = () => {
         description: "Profile updated successfully",
       });
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const renderTechStack = (techStack: string) => {
     if (!techStack) return null;
-    return techStack.split(',').map((tech, index) => (
+    return techStack.split(",").map((tech, index) => (
       <span
         key={index}
         className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
@@ -207,7 +229,7 @@ const DeveloperDashboard = () => {
         resume: applicationData.resume,
         whatsappNumber: applicationData.whatsappNumber,
         developerId: "",
-        recruiterId: ""
+        recruiterId: "",
       });
 
       if (result.success) {
@@ -221,15 +243,15 @@ const DeveloperDashboard = () => {
         toast({
           title: "Error",
           description: result.error || "Failed to submit application",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error submitting application:', error);
+      console.error("Error submitting application:", error);
       toast({
         title: "Error",
         description: "Failed to submit application. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -237,8 +259,8 @@ const DeveloperDashboard = () => {
   };
 
   const handleStorageNavigation = () => {
-    navigate('/developerstorage');
-};
+    navigate("/developerstorage");
+  };
 
   return (
     <>
@@ -259,7 +281,11 @@ const DeveloperDashboard = () => {
               bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
               transform transition-all duration-300 ease-in-out
               hover:scale-105 hover:shadow-xl
-              active:scale-95 active:shadow-md" onClick={ handleStorageNavigation }>Storage</Button>
+              active:scale-95 active:shadow-md"
+              onClick={handleStorageNavigation}
+            >
+              Storage
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -291,14 +317,16 @@ const DeveloperDashboard = () => {
                       {profile.firstName} {profile.lastName}
                     </h3>
                     <p className="text-gray-600">{profile.email}</p>
-                    <p className="text-gray-600">Experience: {profile.experience}</p>
+                    <p className="text-gray-600">
+                      Experience: {profile.experience}
+                    </p>
                   </div>
 
                   {/* Skills */}
                   <div className="space-y-2">
                     <h3 className="font-semibold text-gray-900">Skills</h3>
                     <div className="flex flex-wrap gap-2">
-                      {profile.skills.split(',').map((skill, index) => (
+                      {profile.skills.split(",").map((skill, index) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
@@ -316,7 +344,9 @@ const DeveloperDashboard = () => {
                       <h3 className="font-semibold text-gray-900">Education</h3>
                       <p className="text-gray-600 mt-1">{profile.university}</p>
                       <p className="text-gray-600">{profile.degree}</p>
-                      <p className="text-gray-600">Class of {profile.graduationYear}</p>
+                      <p className="text-gray-600">
+                        Class of {profile.graduationYear}
+                      </p>
                     </div>
                   </div>
 
@@ -324,7 +354,9 @@ const DeveloperDashboard = () => {
                   <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-50/80">
                     <FaGithub className="text-primary text-xl mt-1" />
                     <div>
-                      <h3 className="font-semibold text-gray-900">GitHub Profile</h3>
+                      <h3 className="font-semibold text-gray-900">
+                        GitHub Profile
+                      </h3>
                       <a
                         href={`https://github.com/${profile.github}`}
                         target="_blank"
@@ -356,16 +388,17 @@ const DeveloperDashboard = () => {
                       Startup Ideas
                     </h2>
                     <div className="flex gap-2">
-                      {(['all', 'saved', 'applied'] as const).map((status) => (
+                      {(["all", "saved", "applied"] as const).map((status) => (
                         <Button
                           key={status}
                           variant={activeTab === status ? "default" : "outline"}
                           size="sm"
                           onClick={() => setActiveTab(status)}
-                          className={`capitalize ${activeTab === status
-                              ? 'bg-primary hover:bg-primary/90'
-                              : 'hover:bg-gray-100'
-                            }`}
+                          className={`capitalize ${
+                            activeTab === status
+                              ? "bg-primary hover:bg-primary/90"
+                              : "hover:bg-gray-100"
+                          }`}
                         >
                           {status}
                           {activeTab === status && (
@@ -390,8 +423,12 @@ const DeveloperDashboard = () => {
                         <div className="flex flex-col space-y-4">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="text-xl font-semibold text-gray-900">{idea.cofounderRole}</h3>
-                              <p className="text-gray-600 mt-1">{idea.companyName}</p>
+                              <h3 className="text-xl font-semibold text-gray-900">
+                                {idea.cofounderRole}
+                              </h3>
+                              <p className="text-gray-600 mt-1">
+                                {idea.companyName}
+                              </p>
                             </div>
                             <Button
                               variant="ghost"
@@ -430,14 +467,22 @@ const DeveloperDashboard = () => {
                           </div>
 
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Idea Description</h4>
-                            <p className="text-gray-600">{idea.ideaDescription}</p>
+                            <h4 className="font-semibold text-gray-900 mb-2">
+                              Idea Description
+                            </h4>
+                            <p className="text-gray-600">
+                              {idea.ideaDescription}
+                            </p>
                           </div>
 
                           {idea.roleDescription && (
                             <div>
-                              <h4 className="font-semibold text-gray-900 mb-2">Role Description</h4>
-                              <p className="text-gray-600">{idea.roleDescription}</p>
+                              <h4 className="font-semibold text-gray-900 mb-2">
+                                Role Description
+                              </h4>
+                              <p className="text-gray-600">
+                                {idea.roleDescription}
+                              </p>
                             </div>
                           )}
 
@@ -470,7 +515,9 @@ const DeveloperDashboard = () => {
                         animate={{ opacity: 1 }}
                         className="bg-white p-8 rounded-lg shadow-xl text-center border border-gray-100"
                       >
-                        <p className="text-gray-500">No ideas found in {activeTab} category.</p>
+                        <p className="text-gray-500">
+                          No ideas found in {activeTab} category.
+                        </p>
                       </motion.div>
                     )}
                   </div>
@@ -493,14 +540,22 @@ const DeveloperDashboard = () => {
                 <label className="text-sm font-medium">First Name</label>
                 <Input
                   value={editedProfile?.firstName}
-                  onChange={(e) => setEditedProfile(prev => prev ? { ...prev, firstName: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditedProfile((prev) =>
+                      prev ? { ...prev, firstName: e.target.value } : null
+                    )
+                  }
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Last Name</label>
                 <Input
                   value={editedProfile?.lastName}
-                  onChange={(e) => setEditedProfile(prev => prev ? { ...prev, lastName: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditedProfile((prev) =>
+                      prev ? { ...prev, lastName: e.target.value } : null
+                    )
+                  }
                 />
               </div>
             </div>
@@ -509,15 +564,25 @@ const DeveloperDashboard = () => {
               <label className="text-sm font-medium">Experience</label>
               <Input
                 value={editedProfile?.experience}
-                onChange={(e) => setEditedProfile(prev => prev ? { ...prev, experience: e.target.value } : null)}
+                onChange={(e) =>
+                  setEditedProfile((prev) =>
+                    prev ? { ...prev, experience: e.target.value } : null
+                  )
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium">Skills (comma-separated)</label>
+              <label className="text-sm font-medium">
+                Skills (comma-separated)
+              </label>
               <Input
                 value={editedProfile?.skills}
-                onChange={(e) => setEditedProfile(prev => prev ? { ...prev, skills: e.target.value } : null)}
+                onChange={(e) =>
+                  setEditedProfile((prev) =>
+                    prev ? { ...prev, skills: e.target.value } : null
+                  )
+                }
               />
             </div>
 
@@ -525,7 +590,11 @@ const DeveloperDashboard = () => {
               <label className="text-sm font-medium">GitHub URL</label>
               <Input
                 value={editedProfile?.github}
-                onChange={(e) => setEditedProfile(prev => prev ? { ...prev, github: e.target.value } : null)}
+                onChange={(e) =>
+                  setEditedProfile((prev) =>
+                    prev ? { ...prev, github: e.target.value } : null
+                  )
+                }
               />
             </div>
 
@@ -533,7 +602,11 @@ const DeveloperDashboard = () => {
               <label className="text-sm font-medium">Bio</label>
               <Textarea
                 value={editedProfile?.bio}
-                onChange={(e) => setEditedProfile(prev => prev ? { ...prev, bio: e.target.value } : null)}
+                onChange={(e) =>
+                  setEditedProfile((prev) =>
+                    prev ? { ...prev, bio: e.target.value } : null
+                  )
+                }
               />
             </div>
 
@@ -541,9 +614,7 @@ const DeveloperDashboard = () => {
               <Button variant="outline" onClick={() => setIsEditing(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleProfileUpdate}>
-                Save Changes
-              </Button>
+              <Button onClick={handleProfileUpdate}>Save Changes</Button>
             </div>
           </div>
         </DialogContent>
@@ -551,7 +622,10 @@ const DeveloperDashboard = () => {
 
       {/* Apply Dialog */}
       {selectedIdea && (
-        <Dialog open={!!selectedIdea} onOpenChange={() => setSelectedIdea(null)}>
+        <Dialog
+          open={!!selectedIdea}
+          onOpenChange={() => setSelectedIdea(null)}
+        >
           <DialogContent className="max-w-3xl">
             <DialogHeader>
               <DialogTitle>Apply for {selectedIdea.companyName}</DialogTitle>
@@ -561,7 +635,12 @@ const DeveloperDashboard = () => {
                 <label className="text-sm font-medium">Cover Letter</label>
                 <Textarea
                   value={applicationData.coverLetter}
-                  onChange={(e) => setApplicationData(prev => ({ ...prev, coverLetter: e.target.value }))}
+                  onChange={(e) =>
+                    setApplicationData((prev) => ({
+                      ...prev,
+                      coverLetter: e.target.value,
+                    }))
+                  }
                   placeholder="Write a brief cover letter explaining why you're interested in this opportunity..."
                   className="mt-1"
                 />
@@ -570,7 +649,12 @@ const DeveloperDashboard = () => {
                 <label className="text-sm font-medium">Resume Link</label>
                 <Input
                   value={applicationData.resume}
-                  onChange={(e) => setApplicationData(prev => ({ ...prev, resume: e.target.value }))}
+                  onChange={(e) =>
+                    setApplicationData((prev) => ({
+                      ...prev,
+                      resume: e.target.value,
+                    }))
+                  }
                   placeholder="Paste your resume link here..."
                   className="mt-1"
                 />
@@ -579,18 +663,31 @@ const DeveloperDashboard = () => {
                 <label className="text-sm font-medium">WhatsApp Number</label>
                 <Input
                   value={applicationData.whatsappNumber}
-                  onChange={(e) => setApplicationData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+                  onChange={(e) =>
+                    setApplicationData((prev) => ({
+                      ...prev,
+                      whatsappNumber: e.target.value,
+                    }))
+                  }
                   placeholder="Enter your WhatsApp number with country code (e.g., +91XXXXXXXXXX)"
-                  className="mt-1" maxLength={12}
+                  className="mt-1"
+                  maxLength={12}
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setSelectedIdea(null)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setSelectedIdea(null)}>
+                  Cancel
+                </Button>
                 <Button
                   onClick={() => handleSubmitApplication(selectedIdea.id)}
-                  disabled={isSubmitting || !applicationData.coverLetter || !applicationData.resume || !applicationData.whatsappNumber}
+                  disabled={
+                    isSubmitting ||
+                    !applicationData.coverLetter ||
+                    !applicationData.resume ||
+                    !applicationData.whatsappNumber
+                  }
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>
               </div>
             </div>

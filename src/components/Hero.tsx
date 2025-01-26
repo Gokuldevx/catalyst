@@ -15,7 +15,7 @@ export const Hero = () => {
           find your ideal match and build something amazing together.
         </p>
         <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mt-16">
-          <Button 
+          <Button
             size="lg"
             className="w-full sm:w-auto text-xl px-12 py-8 rounded-xl text-white shadow-lg 
             bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
@@ -26,7 +26,7 @@ export const Hero = () => {
           >
             I'm a Founder
           </Button>
-          <Button 
+          <Button
             size="lg"
             className="w-full sm:w-auto text-xl px-12 py-8 rounded-xl text-white shadow-lg 
             bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700

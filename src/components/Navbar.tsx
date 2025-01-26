@@ -49,7 +49,7 @@ export const Navbar = () => {
               <Button 
                 onClick={handleSignOut}
                 className="text-white shadow-lg 
-                bg-gradient-to-r from-primary to-purple-400 hover:from-primary/90 hover:to-purple-500
+                bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
                 transform transition-all duration-300 ease-in-out
                 hover:scale-105 hover:shadow-xl
                 active:scale-95 active:shadow-md"
@@ -61,7 +61,7 @@ export const Navbar = () => {
                 <Button 
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="text-white shadow-lg 
-                  bg-gradient-to-r from-primary to-purple-400 hover:from-primary/90 hover:to-purple-500
+                  bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
                   transform transition-all duration-300 ease-in-out
                   hover:scale-105 hover:shadow-xl
                   active:scale-95 active:shadow-md

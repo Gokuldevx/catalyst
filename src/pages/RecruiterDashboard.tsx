@@ -66,6 +66,7 @@ interface IdeaPost extends RecruiterProfile {
   idealCandidate: string;
 }
 
+
 export const RecruiterDashboard = () => {
   const location = useLocation();
   const { toast } = useToast();

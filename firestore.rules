@@ -35,5 +35,13 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow update: if isSignedIn();
     }
+
+    match /developerSecrets/{secretId} {
+      // Allow read access if the user is signed in
+      allow read: if isSignedIn();
+      
+      // Allow write access only if the user is signed in and the secret belongs to them (based on UID)
+      allow write: if isSignedIn() && isOwner(request.auth.uid);
+    }
   }
 }

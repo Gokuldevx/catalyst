@@ -11,6 +11,7 @@ import RecruiterSignup from "./pages/RecruiterSignup"
 import RecruiterDashboard from './pages/RecruiterDashboard'
 import DeveloperDashboard from './pages/DeveloperDashboard'
 import DeveloperStorage from './pages/DeveloperStorage';
+import AboutUs from './pages/AboutUs'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,7 @@ function App() {
             <Route path="/recruiterdashboard" element={<RecruiterDashboard />} />
             <Route path="/developerdashboard" element={<DeveloperDashboard />} />            
             <Route path="/developerstorage" element={<DeveloperStorage />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Toaster />

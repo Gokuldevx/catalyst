@@ -50,7 +50,7 @@ const AboutUs = () => {
           <div className="space-y-4">
             <div className="gap-4">
               <div className="space-y-2">
-                <p className="text-gray-600">
+                <p className="text-black-600">
                   Catalyst is a platform connecting startup founders with
                   skilled technical co-founders, fostering collaborative
                   relationships that drive innovation and growth. The platform
@@ -73,40 +73,109 @@ const AboutUs = () => {
                   </h2>
                 </div>
 
-                <p className="text-gray-600">
-                  For Founders:
+                <p className="text-black-600">
+                  <b>For Founders:</b>
                   <br />
-                  1. Detailed Profiles: Create comprehensive profiles showcasing
-                  startup ideas, goals, and requirements.
+                  <ul className="list-disc ml-4">
+                    <li>
+                      Detailed Profiles: Create comprehensive profiles
+                      showcasing startup ideas, goals, and requirements.
+                    </li>
+                    <li>
+                      Developer Portfolio Review: Review developer portfolios,
+                      including GitHub repositories and other relevant work
+                      samples.
+                    </li>
+                    <li>
+                      Application Management: Receive, review, and manage
+                      applications from interested developers.
+                    </li>
+                    <li>
+                      Secure Communication: Exchange contact information with
+                      matched developers, facilitating seamless collaboration.
+                    </li>
+                  </ul>
                   <br />
-                  2. Developer Portfolio Review: Review developer portfolios,
-                  including GitHub repositories and other relevant work samples.
-                  <br />
-                  3. Application Management: Receive, review, and manage
-                  applications from interested developers.
-                  <br />
-                  4. Secure Communication: Exchange contact information with
-                  matched developers, facilitating seamless collaboration.
-                  <br />
-                  <br />
-                  For Developers:
-                  <br />
-                  1. Skill Showcase: Create profiles highlighting technical
-                  skills, expertise, and experience.
-                  <br />
-                  2. Startup Discovery: Browse and discover startup projects
-                  aligning with skills and interests.
-                  <br />
-                  3. Application Submission: Apply to startup projects,
-                  showcasing relevant skills and experience.
-                  <br />
-                  4. Collaboration: Collaborate directly with startup founders,
-                  driving innovation and growth.
-                  <br />
-                  5. Storage: Store sensitive credentials such as API keys,
-                  Passwords, API Secrets, etc.
-                  <br />
+
+                  <b>For Developers:</b>
+                  <ul className="list-disc ml-4">
+                    <li>
+                      Skill Showcase: Create profiles highlighting technical
+                      skills, expertise, and experience.
+                    </li>
+                    <li>
+                      Startup Discovery: Browse and discover startup projects
+                      aligning with skills and interests.
+                    </li>
+                    <li>
+                      Application Submission: Apply to startup projects,
+                      showcasing relevant skills and experience.
+                    </li>
+                    <li>
+                      Collaboration: Collaborate directly with startup founders,
+                      driving innovation and growth.
+                    </li>
+                    <li>
+                      Storage: Store sensitive credentials such as API keys,
+                      Passwords, API Secrets, etc.
+                    </li>
+                  </ul>
                 </p>
+              </div>
+            </div>
+            <div className="gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+                    Tech Stack
+                  </h2>
+                </div>
+                <p className="text-black-600">
+                  <b>Frontend:</b>
+                  <ul className="list-disc ml-4">
+                    <li>Framewrok/Library: React.js</li>
+                    <li>Styling: Tailwind CSS</li>
+                    <li>Routing: React Router</li>
+                    <li>Communication: Axios</li>
+                  </ul>
+                  <br />
+                  <b>Backend:</b>
+                  <ul className="list-disc ml-4">
+                    <li>Authentication: Firebase Authentication</li>
+                    <li>Database: Firestore</li>
+                    <li>File Storage: Firebase</li>
+                  </ul>
+                </p>
+              </div>
+            </div>
+
+            <div className="gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+                    Team Members
+                  </h2>
+                </div>
+                <div className="flex gap-20">
+                  <section className="border">
+                    <a href=""></a>
+                    <h2>Abhinav</h2>
+                    <p>CAS Mavelikkara, S6 BCA</p>
+                    <p>Coder</p>
+                  </section>
+                  <section className="border">
+                    <a href=""></a>
+                    <h2>Akshay Pankaj</h2>
+                    <p>CAS Mavelikkara, S6 BCA</p>
+                    <p>Coder</p>
+                  </section>
+                  <section className="border">
+                    <a href="/public/Catalyst.jpg"></a>
+                    <h2>Gokuldev Sudhakaran Ezhava</h2>
+                    <p>CAS Mavelikkara, S6 BCA</p>
+                    <p>Coder</p>
+                  </section>
+                </div>
               </div>
             </div>
           </div>

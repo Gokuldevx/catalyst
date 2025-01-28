@@ -24,10 +24,10 @@ const AboutUs = () => {
             <div className="flex gap-4 items-center">
               <Button
                 className="text-white shadow-lg 
-                                bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
-                                transform transition-all duration-300 ease-in-out
-                                hover:scale-105 hover:shadow-xl
-                                active:scale-95 active:shadow-md"
+                bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
+                transform transition-all duration-300 ease-in-out
+                hover:scale-105 hover:shadow-xl
+                active:scale-95 active:shadow-md"
                 onClick={handleBack}
               >
                 Back
@@ -158,20 +158,20 @@ const AboutUs = () => {
                 </div>
                 <div className="flex gap-20">
                   <section className="border">
-                    <a href=""></a>
-                    <h2>Abhinav</h2>
+                    <img src="/public/Catalyst.jpg" height={ 150 } width={ 150 } className="rounded-full" />
+                    <p>Abhinav</p>
                     <p>CAS Mavelikkara, S6 BCA</p>
                     <p>Coder</p>
                   </section>
                   <section className="border">
-                    <a href=""></a>
-                    <h2>Akshay Pankaj</h2>
+                  <img src="/public/Catalyst.jpg" height={ 150 } width={ 150 } className="rounded-full" />
+                    <p>Akshay Pankaj</p>
                     <p>CAS Mavelikkara, S6 BCA</p>
                     <p>Coder</p>
                   </section>
                   <section className="border">
-                    <a href="/public/Catalyst.jpg"></a>
-                    <h2>Gokuldev Sudhakaran Ezhava</h2>
+                  <img src="/public/Catalyst.jpg" height={ 150 } width={ 150 } className="rounded-full" />
+                    <p>Gokuldev Sudhakaran Ezhava</p>
                     <p>CAS Mavelikkara, S6 BCA</p>
                     <p>Coder</p>
                   </section>

@@ -132,6 +132,12 @@ const DeveloperStorage = () => {
             Developer Secrets
           </h1>
         </div>
+        <div className="flex gap-2">
+          <Button className="bg-black border text-white hover:bg-white hover:text-black">Home</Button>
+          <Button className="bg-black border text-white hover:bg-white hover:text-black">Encrypt</Button>
+          <Button className="bg-black border text-white hover:bg-white hover:text-black">Decrypt</Button>
+          <Button className="bg-black border text-white hover:bg-white hover:text-black">Audit Trail</Button>
+        </div><br/>
 
         <Card className="border-none shadow-xl">
           <form onSubmit={handleSaveSecret}>

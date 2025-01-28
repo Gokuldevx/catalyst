@@ -158,19 +158,34 @@ const AboutUs = () => {
                 </div>
                 <div className="flex gap-20">
                   <section className="border">
-                    <img src="/public/Catalyst.jpg" height={ 150 } width={ 150 } className="rounded-full" />
+                    <img
+                      src="/public/Catalyst.jpg"
+                      height={150}
+                      width={150}
+                      className="rounded-full"
+                    />
                     <p>Abhinav</p>
                     <p>CAS Mavelikkara, S6 BCA</p>
                     <p>Coder</p>
                   </section>
                   <section className="border">
-                  <img src="/public/Catalyst.jpg" height={ 150 } width={ 150 } className="rounded-full" />
+                    <img
+                      src="/public/Catalyst.jpg"
+                      height={150}
+                      width={150}
+                      className="rounded-full"
+                    />
                     <p>Akshay Pankaj</p>
                     <p>CAS Mavelikkara, S6 BCA</p>
                     <p>Coder</p>
                   </section>
                   <section className="border">
-                  <img src="/public/Catalyst.jpg" height={ 150 } width={ 150 } className="rounded-full" />
+                    <img
+                      src="/public/Catalyst.jpg"
+                      height={150}
+                      width={150}
+                      className="rounded-full"
+                    />
                     <p>Gokuldev Sudhakaran Ezhava</p>
                     <p>CAS Mavelikkara, S6 BCA</p>
                     <p>Coder</p>

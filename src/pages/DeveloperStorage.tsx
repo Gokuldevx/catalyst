@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  orderBy
 } from "firebase/firestore";
 import { db } from "@/lib/firebase"; // Import your Firebase app configuration
 import { getAuth } from "firebase/auth"; // Import getAuth from firebase/auth
@@ -34,9 +35,16 @@ const DeveloperStorage = () => {
     null
   ); // Track which secret is being deleted
   const [confirmationInput, setConfirmationInput] = useState("");
+  const [showAuditTrail, setShowAuditTrail] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [dateFilter, setDateFilter] = useState("");
 
   // Your encryption key (store securely, e.g., in environment variables)
   const ENCRYPTION_KEY = "your-encryption-key"; // Change this to a strong key
+
+  useEffect(() => {
+    fetchAuditLogs();
+  }, []);
 
   const handleSaveSecret = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,6 +244,39 @@ const DeveloperStorage = () => {
     }
   };
 
+  const fetchAuditLogs = async () => {
+    console.log("Audit Trail button clicked!");
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        alert("User is not authenticated.");
+        return;
+      }
+      const q = query(
+        collection(db, "auditLogs"),
+        where("userId", "==", user.uid),
+        orderBy("timestamp", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+      const fetchedLogs = querySnapshot.docs.map((doc) => doc.data());
+      setLogs(fetchedLogs);
+      console.log("Fetched logs:", logs); // Debug log
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      alert("An error occurred while fetching audit logs.");
+    }
+  };
+
+  const handleFilterLogs = () => {
+    if (!dateFilter) return;
+    setLogs((prevLogs) =>
+      prevLogs.filter((log) => log.timestamp.startsWith(dateFilter))
+    );
+  };
+
+
+
   return (
     <>
       <Navbar />
@@ -272,7 +313,9 @@ const DeveloperStorage = () => {
           >
             Decrypt
           </Button>
-          <Button className="bg-black border text-white hover:bg-white hover:text-black">
+          <Button className="bg-black border text-white hover:bg-white hover:text-black"
+            onClick={fetchAuditLogs}
+          >
             Audit Trail
           </Button>
           <Button className="bg-black border text-white hover:bg-white hover:text-black">
@@ -455,6 +498,38 @@ const DeveloperStorage = () => {
                 </div>
               </CardContent>
             </form>
+          </Card>
+        )}
+
+        {showAuditTrail && (
+          <Card className="border-none shadow-xl">
+            <CardHeader className="border-b border-gray-100">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                Audit Trail Logs
+              </h2>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                />
+                <Button onClick={handleFilterLogs}>Filter</Button>
+              </div>
+              {logs.length > 0 ? (
+                <ul className="space-y-2">
+                  {logs.map((log, index) => (
+                    <li key={index} className="p-2 border rounded-lg shadow-sm">
+                      <span className="text-gray-700">{log.action}</span> -
+                      <span className="text-gray-500"> {log.timestamp}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-600">No logs found.</p>
+              )}
+            </CardContent>
           </Card>
         )}
       </div>

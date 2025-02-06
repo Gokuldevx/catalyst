@@ -4,7 +4,7 @@
 # firebase/.firebaserc
 
 # # Node.js
-# node_modules/**
+node_modules/**
 # package-lock.json
 
 # # IDE-specific files
@@ -15,7 +15,7 @@
 # functions/
 # dataconnect/
 # dataconnect-generated/
-# FounderBridge.code-workspace
+catalyst.code-workspace
 # firestore.indexes.json
 # remoteconfig.template.json
 # .firebaserc
@@ -24,4 +24,4 @@
 # storage.rules
 # firebase.json
 # database.rules.json
-node_modules
+

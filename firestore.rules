@@ -6,7 +6,7 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
@@ -36,18 +36,16 @@ service cloud.firestore {
       allow update: if isSignedIn();
     }
 
+    // Developer Secrets collection
     match /developerSecrets/{secretId} {
-      // Allow read access if the user is signed in
       allow read: if isSignedIn();
-      
-      // Allow write access only if the user is signed in and the secret belongs to them (based on UID)
       allow write: if isSignedIn() && isOwner(request.auth.uid);
     }
 
-    // ✅ Audit Logs collection (NEWLY ADDED)
-    match /auditLogs/{logId} {
-      allow read: if isSignedIn();  // Allow authenticated users to read logs
-      allow write: if isSignedIn(); // Allow authenticated users to write logs
+    // Audit Logs collection
+    match /audit_logs/{logId} {
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow read: if isSignedIn() && isOwner(resource.data.userId);
     }
   }
 }

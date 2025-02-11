@@ -276,17 +276,19 @@ const DeveloperDashboard = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
               Developer Dashboard
             </h1>
-            <Button
-              className="text-white shadow-lg 
+
+            
+              <Button
+                className="text-white shadow-lg 
               bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
               transform transition-all duration-300 ease-in-out
               hover:scale-105 hover:shadow-xl
               active:scale-95 active:shadow-md"
-              onClick={handleStorageNavigation}
-            >
-              Storage
-            </Button>
-          </div>
+                onClick={handleStorageNavigation}
+              >
+                Storage
+              </Button>
+            </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Profile Section */}

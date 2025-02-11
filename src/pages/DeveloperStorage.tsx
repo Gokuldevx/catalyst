@@ -2,7 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { collection, query, where, getDocs, addDoc, deleteDoc, orderBy, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  orderBy,
+  Timestamp,
+  onSnapshot,
+  DocumentData,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase"; // Import your Firebase app configuration
 import { getAuth } from "firebase/auth"; // Import getAuth from firebase/auth
 import CryptoJS from "crypto-js"; // Import the encryption library
@@ -10,13 +21,20 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
+interface AuditLog {
+  id: string;
+  action: string;
+  timestamp: any;
+  metadata: any;
+}
+
 const DeveloperStorage = () => {
   const navigate = useNavigate();
 
   const [secretName, setSecretName] = useState("");
   const [secretNames, setSecretNames] = useState<string[]>([]);
   const [showSecrets, setShowSecrets] = useState(false);
-  const [showEncryption, setShowEncryption] = useState(false); // Controls Encryption section
+  const [showEncryption, setShowEncryption] = useState(false);
   const [showDecryption, setShowDecryption] = useState(false);
   const [secretValue, setSecretValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,13 +42,17 @@ const DeveloperStorage = () => {
   const [decryptedValue, setDecryptedValue] = useState("");
   const [deleteConfirmSecret, setDeleteConfirmSecret] = useState<string | null>(
     null
-  ); // Track which secret is being deleted
+  );
   const [confirmationInput, setConfirmationInput] = useState("");
+  const [showAuditTrail, setShowAuditTrail] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const ENCRYPTION_KEY = "import.meta.env.ENCRYPTION_KEY";
 
-  // Your encryption key (store securely, e.g., in environment variables)
-  const ENCRYPTION_KEY = "your-encryption-key"; // Change this to a strong key
-
-  const logAuditTrail = async (userId: string, action: string, metadata: any = {}) => {
+  const logAuditTrail = async (
+    userId: string,
+    action: string,
+    metadata: any = {}
+  ) => {
     try {
       await addDoc(collection(db, "audit_logs"), {
         userId,
@@ -78,14 +100,11 @@ const DeveloperStorage = () => {
         createdAt: new Date().toISOString(),
       });
 
-      
-
       alert(`Secret saved successfully`);
       setSecretName(""); // Reset the form fields
       setSecretValue("");
 
-      await logAuditTrail(user.uid, "Added Secret", { secretName });
-      
+      await logAuditTrail(user.uid, "Secret Encrypted", { secretName });
     } catch (error) {
       console.error("Error saving secret:", error);
       alert("An error occurred while saving the secret. Please try again.");
@@ -146,6 +165,9 @@ const DeveloperStorage = () => {
       }
 
       setDecryptedValue(originalValue);
+
+      await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
+
     } catch (error) {
       console.error("Error decrypting secret:", error);
       alert("An error occurred while decrypting the secret. Please try again.");
@@ -238,15 +260,42 @@ const DeveloperStorage = () => {
         setDeleteConfirmSecret(null); // Reset the deletion process
         setConfirmationInput(""); // Clear the input
 
-        await logAuditTrail(user.uid, "Deleted Secret", { secretName: deleteConfirmSecret });
-
+        await logAuditTrail(user.uid, "Secret Deleted", {
+          secretName: deleteConfirmSecret,
+        });
       } else {
         alert("Secret not found.");
       }
     } catch (error) {
       console.error("Error deleting secret:", error);
       alert("An error occurred while deleting the secret. Please try again.");
-    } 
+    }
+  };
+
+  const fetchAuditLogs = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const q = query(
+      collection(db, "audit_logs"),
+      where("userId", "==", user.uid),
+      orderBy("timestamp", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const logs: AuditLog[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        userId: doc.data().userId,
+        action: doc.data().action,
+        timestamp: doc.data().timestamp, // Ensure Firestore Timestamp is handled correctly
+        metadata: doc.data().metadata || {}, // Default empty object if metadata is missing
+      }));
+
+      setAuditLogs(logs);
+    });
+
+    return unsubscribe; // Cleanup on unmount
   };
 
   return (
@@ -261,7 +310,13 @@ const DeveloperStorage = () => {
         <div className="flex gap-2">
           <Button
             className="bg-black border text-white hover:bg-white hover:text-black"
-            onClick={fetchSecrets}
+            onClick={() => {
+              fetchSecrets();
+              setShowSecrets(true);
+              setShowEncryption(false);
+              setShowDecryption(false);
+              setShowAuditTrail(false);
+            }}
           >
             Home
           </Button>
@@ -271,6 +326,7 @@ const DeveloperStorage = () => {
               setShowEncryption(true);
               setShowDecryption(false);
               setShowSecrets(false);
+              setShowAuditTrail(false);
             }}
           >
             Encrypt
@@ -281,11 +337,20 @@ const DeveloperStorage = () => {
               setShowDecryption(true);
               setShowEncryption(false);
               setShowSecrets(false);
+              setShowAuditTrail(false);
             }}
           >
             Decrypt
           </Button>
-          <Button className="bg-black border text-white hover:bg-white hover:text-black"
+          <Button
+            className="bg-black border text-white hover:bg-white hover:text-black"
+            onClick={() => {
+              setShowAuditTrail(true);
+              setShowEncryption(false);
+              setShowDecryption(false);
+              setShowSecrets(false);
+              fetchAuditLogs(); // Fetch logs when button is clicked
+            }}
           >
             Audit Trail
           </Button>
@@ -304,6 +369,7 @@ const DeveloperStorage = () => {
                 </h2>
               </div>
             </CardHeader>
+            <br />
             <CardContent>
               {secretNames.length > 0 ? (
                 <ul className="space-y-2">
@@ -472,7 +538,63 @@ const DeveloperStorage = () => {
           </Card>
         )}
 
-        
+        {showAuditTrail && (
+          <Card className="border-none shadow-xl">
+            <CardHeader className="border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+                  Audit Trail
+                </h2>
+              </div>
+            </CardHeader>
+            <br/>
+            <CardContent className="space-y-6">
+              {auditLogs.length === 0 ? (
+                <p className="text-gray-500 text-center">No logs available.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                    <thead className="bg-gray-100 text-gray-700">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Action</th>
+                        <th className="px-4 py-2 text-left">Timestamp</th>
+                        <th className="px-4 py-2 text-left">Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.map((log, index) => (
+                        <tr
+                          key={log.id}
+                          className={`border-b ${
+                            index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                          } hover:bg-gray-100 transition`}
+                        >
+                          <td className="px-4 py-2 font-medium">
+                            {log.action}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {new Date(
+                              log.timestamp.seconds * 1000
+                            ).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-2 text-gray-500">
+                            {Object.keys(log.metadata).length > 0 ? (
+                              <pre className="bg-gray-200 p-2 rounded-md text-sm">
+                                {JSON.stringify(log.metadata, null, 2)}
+                              </pre>
+                            ) : (
+                              "N/A"
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </>
   );

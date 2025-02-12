@@ -33,7 +33,8 @@ const DeveloperStorage = () => {
 
   const [secretName, setSecretName] = useState("");
   const [secretNames, setSecretNames] = useState<string[]>([]);
-  const [showSecrets, setShowSecrets] = useState(false);
+  // const [showSecrets, setShowSecrets] = useState(false);
+  const [showSecrets, setShowSecrets] = useState(true);
   const [showEncryption, setShowEncryption] = useState(false);
   const [showDecryption, setShowDecryption] = useState(false);
   const [secretValue, setSecretValue] = useState("");
@@ -65,163 +66,158 @@ const DeveloperStorage = () => {
     }
   };
 
-  const handleSaveSecret = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Generate a user-specific encryption key
+const generateUserKey = (salt: string) => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+  return CryptoJS.PBKDF2(user.uid, salt, {
+    keySize: 256 / 32,
+    iterations: 1000,
+  }).toString();
+};
 
-    if (!secretName || !secretValue) {
-      alert("Please fill out both fields.");
+const handleSaveSecret = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!secretName || !secretValue) {
+    alert("Please fill out both fields.");
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("User is not authenticated.");
+      setIsLoading(false);
       return;
     }
 
-    try {
-      setIsLoading(true);
+    const salt = "random_salt_value";
+    const userKey = generateUserKey(salt);
+    const encryptedSecret = CryptoJS.AES.encrypt(secretValue, userKey).toString();
 
-      // Encrypt the secret value using AES encryption
-      const encryptedSecret = CryptoJS.AES.encrypt(
-        secretValue,
-        ENCRYPTION_KEY
-      ).toString();
+    await addDoc(collection(db, "developerSecrets"), {
+      userId: user.uid,
+      secretName,
+      secretValue: encryptedSecret,
+      createdAt: new Date().toISOString(),
+    });
 
-      // Get the authenticated user
-      const auth = getAuth(); // Get Auth instance
-      const user = auth.currentUser; // Get the current user
+    alert("Secret saved successfully");
+    setSecretName("");
+    setSecretValue("");
+    await logAuditTrail(user.uid, "Secret Encrypted", { secretName });
+  } catch (error) {
+    console.error("Error saving secret:", error);
+    alert("An error occurred while saving the secret. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-      if (!user) {
-        alert("User is not authenticated.");
-        setIsLoading(false);
-        return;
-      }
+const handleDecryptSecret = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-      // Save the encrypted secret to Firestore under the user's ID
-      await addDoc(collection(db, "developerSecrets"), {
-        userId: user.uid, // Associate the secret with the user's UID
-        secretName,
-        secretValue: encryptedSecret, // Store the encrypted secret
-        createdAt: new Date().toISOString(),
-      });
+  if (!decryptionSecretName) {
+    alert("Please provide the name of the secret to decrypt.");
+    return;
+  }
 
-      alert(`Secret saved successfully`);
-      setSecretName(""); // Reset the form fields
-      setSecretValue("");
-
-      await logAuditTrail(user.uid, "Secret Encrypted", { secretName });
-    } catch (error) {
-      console.error("Error saving secret:", error);
-      alert("An error occurred while saving the secret. Please try again.");
-    } finally {
+  try {
+    setIsLoading(true);
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("User is not authenticated.");
       setIsLoading(false);
-    }
-  };
-
-  const handleDecryptSecret = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!decryptionSecretName) {
-      alert("Please provide the name of the secret to decrypt.");
       return;
     }
 
-    try {
-      setIsLoading(true);
+    const q = query(
+      collection(db, "developerSecrets"),
+      where("userId", "==", user.uid),
+      where("secretName", "==", decryptionSecretName)
+    );
 
-      // Get the authenticated user
-      const auth = getAuth(); // Get Auth instance
-      const user = auth.currentUser; // Get the current user
-
-      if (!user) {
-        alert("User is not authenticated.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Query Firestore for the secret
-      const q = query(
-        collection(db, "developerSecrets"),
-        where("userId", "==", user.uid),
-        where("secretName", "==", decryptionSecretName)
-      );
-
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        alert("No secret found with the given name.");
-        setDecryptionSecretName("");
-        setDecryptedValue("");
-        setIsLoading(false);
-        return;
-      }
-
-      const secretData = querySnapshot.docs[0].data();
-      const encryptedSecretValue = secretData.secretValue;
-
-      // Decrypt the secret value
-      const bytes = CryptoJS.AES.decrypt(encryptedSecretValue, ENCRYPTION_KEY);
-      const originalValue = bytes.toString(CryptoJS.enc.Utf8);
-
-      if (!originalValue) {
-        alert("Failed to decrypt the secret. Please check the encryption key.");
-        setIsLoading(false);
-        return;
-      }
-
-      setDecryptedValue(originalValue);
-
-      await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
-
-    } catch (error) {
-      console.error("Error decrypting secret:", error);
-      alert("An error occurred while decrypting the secret. Please try again.");
-    } finally {
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+      alert("No secret found with the given name.");
+      setDecryptionSecretName("");
+      setDecryptedValue("");
       setIsLoading(false);
+      return;
     }
-  };
 
-  const fetchSecrets = async () => {
-    try {
-      setIsLoading(true);
-      setShowSecrets(false);
-      setShowEncryption(false);
-      setShowDecryption(false);
+    const secretData = querySnapshot.docs[0].data();
+    const encryptedSecretValue = secretData.secretValue;
+    const salt = "random_salt_value";
+    const userKey = generateUserKey(salt);
+    const bytes = CryptoJS.AES.decrypt(encryptedSecretValue, userKey);
+    const originalValue = bytes.toString(CryptoJS.enc.Utf8);
 
-      // Get the authenticated user
-      const auth = getAuth(); // Get Auth instance
-      const user = auth.currentUser; // Get the current user
+    if (!originalValue) {
+      alert("Failed to decrypt the secret. Please check the encryption key.");
+      setIsLoading(false);
+      return;
+    }
 
-      if (!user) {
-        alert("User is not authenticated.");
-        setIsLoading(false);
-        return;
-      }
+    setDecryptedValue(originalValue);
+    await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
+  } catch (error) {
+    console.error("Error decrypting secret:", error);
+    alert("An error occurred while decrypting the secret. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-      // Query Firestore for secrets associated with the user
-      const q = query(
-        collection(db, "developerSecrets"),
-        where("userId", "==", user.uid)
-      );
+const fetchSecrets = async () => {
+  try {
+    setIsLoading(true);
+    setShowSecrets(false);
+    setShowEncryption(false);
+    setShowDecryption(false);
+    setShowAuditTrail(false);
 
-      const querySnapshot = await getDocs(q);
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("User is not authenticated.");
+      setIsLoading(false);
+      return;
+    }
 
-      if (querySnapshot.empty) {
-        alert("No secrets found.");
-        setSecretNames([]); // Clear the secret names
-        setShowSecrets(true);
-        setIsLoading(false);
-        return;
-      }
+    const q = query(
+      collection(db, "developerSecrets"),
+      where("userId", "==", user.uid)
+    );
 
-      // Extract secret names from the query snapshot
-      const fetchedSecretNames = querySnapshot.docs.map(
-        (doc) => doc.data().secretName
-      );
-      setSecretNames(fetchedSecretNames);
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+      // alert("No secrets found.");
+      setSecretNames([]);
       setShowSecrets(true);
-    } catch (error) {
-      console.error("Error fetching secrets:", error);
-      alert("An error occurred while fetching the secrets. Please try again.");
-    } finally {
       setIsLoading(false);
+      return;
     }
-  };
+
+    const fetchedSecretNames = querySnapshot.docs.map((doc) => doc.data().secretName);
+    setSecretNames(fetchedSecretNames);
+    setShowSecrets(true);
+  } catch (error) {
+    console.error("Error fetching secrets:", error);
+    alert("An error occurred while fetching the secrets. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  useEffect(() => {
+    fetchSecrets();
+  }, []);
 
   const handleDeleteSecret = async () => {
     if (confirmationInput !== "delete") {
@@ -312,10 +308,7 @@ const DeveloperStorage = () => {
             className="bg-black border text-white hover:bg-white hover:text-black"
             onClick={() => {
               fetchSecrets();
-              setShowSecrets(true);
-              setShowEncryption(false);
-              setShowDecryption(false);
-              setShowAuditTrail(false);
+              
             }}
           >
             Home

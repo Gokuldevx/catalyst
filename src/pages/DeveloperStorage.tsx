@@ -47,7 +47,8 @@ const DeveloperStorage = () => {
   const [confirmationInput, setConfirmationInput] = useState("");
   const [showAuditTrail, setShowAuditTrail] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const ENCRYPTION_KEY = "import.meta.env.ENCRYPTION_KEY";
+  const [passphrase, setPassphrase] = useState("");
+  // const ENCRYPTION_KEY = "import.meta.env.ENCRYPTION_KEY";
 
   const logAuditTrail = async (
     userId: string,
@@ -77,11 +78,20 @@ const generateUserKey = (salt: string) => {
   }).toString();
 };
 
+const deriveKey = (passphrase: string, uid: string): string => {
+  const salt = CryptoJS.enc.Utf8.parse(uid); // Use UID as salt
+  const key = CryptoJS.PBKDF2(passphrase, salt, {
+    keySize: 256 / 32, // 256-bit key
+    iterations: 10000, // Increase iterations for security
+  });
+  return key.toString();
+};
+
 const handleSaveSecret = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  if (!secretName || !secretValue) {
-    alert("Please fill out both fields.");
+  if (!secretName || !secretValue || !passphrase) {
+    alert("Please fill out all fields.");
     return;
   }
 
@@ -89,16 +99,20 @@ const handleSaveSecret = async (e: React.FormEvent) => {
     setIsLoading(true);
     const auth = getAuth();
     const user = auth.currentUser;
+
     if (!user) {
       alert("User is not authenticated.");
       setIsLoading(false);
       return;
     }
 
-    const salt = "random_salt_value";
-    const userKey = generateUserKey(salt);
-    const encryptedSecret = CryptoJS.AES.encrypt(secretValue, userKey).toString();
+    // Derive key using passphrase and UID
+    const encryptionKey = deriveKey(passphrase, user.uid);
 
+    // Encrypt the secret value
+    const encryptedSecret = CryptoJS.AES.encrypt(secretValue, encryptionKey).toString();
+
+    // Save encrypted secret to Firestore
     await addDoc(collection(db, "developerSecrets"), {
       userId: user.uid,
       secretName,
@@ -106,9 +120,11 @@ const handleSaveSecret = async (e: React.FormEvent) => {
       createdAt: new Date().toISOString(),
     });
 
-    alert("Secret saved successfully");
+    alert(`Secret saved successfully`);
     setSecretName("");
     setSecretValue("");
+    setPassphrase("");
+
     await logAuditTrail(user.uid, "Secret Encrypted", { secretName });
   } catch (error) {
     console.error("Error saving secret:", error);
@@ -121,8 +137,8 @@ const handleSaveSecret = async (e: React.FormEvent) => {
 const handleDecryptSecret = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  if (!decryptionSecretName) {
-    alert("Please provide the name of the secret to decrypt.");
+  if (!decryptionSecretName || !passphrase) {
+    alert("Please provide the secret name and passphrase.");
     return;
   }
 
@@ -130,12 +146,14 @@ const handleDecryptSecret = async (e: React.FormEvent) => {
     setIsLoading(true);
     const auth = getAuth();
     const user = auth.currentUser;
+
     if (!user) {
       alert("User is not authenticated.");
       setIsLoading(false);
       return;
     }
 
+    // Query Firestore for the secret
     const q = query(
       collection(db, "developerSecrets"),
       where("userId", "==", user.uid),
@@ -143,6 +161,7 @@ const handleDecryptSecret = async (e: React.FormEvent) => {
     );
 
     const querySnapshot = await getDocs(q);
+
     if (querySnapshot.empty) {
       alert("No secret found with the given name.");
       setDecryptionSecretName("");
@@ -153,18 +172,23 @@ const handleDecryptSecret = async (e: React.FormEvent) => {
 
     const secretData = querySnapshot.docs[0].data();
     const encryptedSecretValue = secretData.secretValue;
-    const salt = "random_salt_value";
-    const userKey = generateUserKey(salt);
-    const bytes = CryptoJS.AES.decrypt(encryptedSecretValue, userKey);
+
+    // Derive key using passphrase and UID
+    const encryptionKey = deriveKey(passphrase, user.uid);
+
+    // Decrypt the secret value
+    const bytes = CryptoJS.AES.decrypt(encryptedSecretValue, encryptionKey);
     const originalValue = bytes.toString(CryptoJS.enc.Utf8);
 
     if (!originalValue) {
-      alert("Failed to decrypt the secret. Please check the encryption key.");
+      alert("Failed to decrypt the secret. Please check the passphrase.");
+      await logAuditTrail(user.uid, "Secret Decryption Failed", { secretName: decryptionSecretName });
       setIsLoading(false);
       return;
     }
 
     setDecryptedValue(originalValue);
+
     await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
   } catch (error) {
     console.error("Error decrypting secret:", error);
@@ -463,6 +487,17 @@ const fetchSecrets = async () => {
                       />
                     </div>
                     <br />
+                    <div className="space-y-2">
+                      <Label htmlFor="passPhrase">Enter Passphrase</Label>
+                      <Input
+                        id="passPhrase"
+                        placeholder="Enter PassPhrase"
+                        value={passphrase}
+                        onChange={(e) => setPassphrase(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <br/>
                     <div className="flex gap-2">
                       <Button
                         type="submit"
@@ -508,6 +543,17 @@ const fetchSecrets = async () => {
                       />
                     </div>
                     <br />
+                    <div className="space-y-2">
+                      <Label htmlFor="passPhrase">Enter Passphrase</Label>
+                      <Input
+                        id="passPhrase"
+                        placeholder="Enter PassPhrase"
+                        value={passphrase}
+                        onChange={(e) => setPassphrase(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <br/>
                     <div className="flex gap-2">
                       <Button
                         type="submit"

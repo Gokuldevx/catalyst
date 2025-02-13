@@ -1,27 +1,29 @@
-# # Firebase
-# firebase/*.json
-# firebase/*.rules
-# firebase/.firebaserc
+# Firebase
+firebase/*.json
+firebase/*.rules
+firebase/.firebaserc
 
 # # Node.js
 node_modules/**
-# package-lock.json
+package-lock.json
 
-# # IDE-specific files
-# .vscode/
+# IDE-specific files
+.vscode/
 
 # # Other
-# .env
-# functions/
-# dataconnect/
-# dataconnect-generated/
+.env
+functions/
+dataconnect/
+dataconnect-generated/
 catalyst.code-workspace
 # firestore.indexes.json
 # remoteconfig.template.json
-# .firebaserc
-# apphosting.yaml
-# bun.lockb
+.firebaserc
+apphosting.yaml
+bun.lockb
 # storage.rules
-# firebase.json
-# database.rules.json
+firebase.json
+database.rules.json
 Design/
+src/vite-env.d.ts
+components.json

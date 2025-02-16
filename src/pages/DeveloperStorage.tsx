@@ -285,7 +285,6 @@ const DeveloperStorage = () => {
           prevNames.filter((name) => name !== deleteConfirmSecret)
         );
 
-        alert("Secret deleted successfully.");
         setDeleteConfirmSecret(null); // Reset the deletion process
         setConfirmationInput(""); // Clear the input
 
@@ -326,6 +325,10 @@ const DeveloperStorage = () => {
 
     return unsubscribe; // Cleanup on unmount
   };
+
+  const handleBack = () => {
+    navigate(-1)
+  }
 
   return (
     <>
@@ -379,7 +382,10 @@ const DeveloperStorage = () => {
           >
             Audit Trail
           </Button>
-          <Button className="bg-black border text-white hover:bg-white hover:text-black">
+          <Button className="bg-black border text-white hover:bg-white hover:text-black"
+          onClick={() => {
+            handleBack()
+          }}>
             Back
           </Button>
         </div>

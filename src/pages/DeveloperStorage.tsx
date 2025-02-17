@@ -20,6 +20,7 @@ import CryptoJS from "crypto-js"; // Import the encryption library
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 interface AuditLog {
   id: string;
@@ -30,7 +31,7 @@ interface AuditLog {
 
 const DeveloperStorage = () => {
   const navigate = useNavigate();
-
+  const { toast } = useToast();
   const [secretName, setSecretName] = useState("");
   const [secretNames, setSecretNames] = useState<string[]>([]);
   // const [showSecrets, setShowSecrets] = useState(false);
@@ -48,7 +49,6 @@ const DeveloperStorage = () => {
   const [showAuditTrail, setShowAuditTrail] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [passphrase, setPassphrase] = useState("");
-  // const ENCRYPTION_KEY = "import.meta.env.ENCRYPTION_KEY";
 
   const logAuditTrail = async (
     userId: string,
@@ -67,71 +67,80 @@ const DeveloperStorage = () => {
     }
   };
 
-  // Generate a user-specific encryption key
-  const generateUserKey = (salt: string) => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (!user) throw new Error("User not authenticated");
-    return CryptoJS.PBKDF2(user.uid, salt, {
+  function deriveKey(passphrase: string, salt: string) {
+    return CryptoJS.PBKDF2(passphrase, salt, {
       keySize: 256 / 32,
-      iterations: 1000,
+      iterations: 100000,
     }).toString();
-  };
-
-  const deriveKey = (passphrase: string, uid: string): string => {
-    const salt = CryptoJS.enc.Utf8.parse(uid); // Use UID as salt
-    const key = CryptoJS.PBKDF2(passphrase, salt, {
-      keySize: 256 / 32, // 256-bit key
-      iterations: 10000, // Increase iterations for security
-    });
-    return key.toString();
-  };
+  }
 
   const handleSaveSecret = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!secretName || !secretValue || !passphrase) {
-      alert("Please fill out all fields.");
+      toast({
+        title: "Missing Fields",
+        description: "Please fill out all fields.",
+        variant: "destructive",
+      });
       return;
     }
-
+  
     try {
       setIsLoading(true);
       const auth = getAuth();
       const user = auth.currentUser;
-
+  
       if (!user) {
-        alert("User is not authenticated.");
+        toast({
+          title: "Authentication Error",
+          description: "User is not authenticated.",
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
-
-      // Derive key using passphrase and UID
-      const encryptionKey = deriveKey(passphrase, user.uid);
-
-      // Encrypt the secret value
-      const encryptedSecret = CryptoJS.AES.encrypt(
-        secretValue,
-        encryptionKey
-      ).toString();
-
-      // Save encrypted secret to Firestore
+  
+      // 🔹 Generate strong key using PBKDF2 with a random salt
+      const salt = CryptoJS.lib.WordArray.random(16).toString();
+      const encryptionKey = deriveKey(passphrase, salt);
+  
+      // 🔹 Compute HMAC for integrity verification
+      const hmac = CryptoJS.HmacSHA256(secretValue, encryptionKey).toString();
+  
+      // 🔹 Encrypt secret and HMAC together
+      const encryptedSecret = CryptoJS.AES.encrypt(secretValue + "::" + hmac, encryptionKey).toString();
+      const encryptedSecretName = CryptoJS.AES.encrypt(secretName, encryptionKey).toString();
+  
+      // 🔹 Save encrypted secret to Firestore
       await addDoc(collection(db, "developerSecrets"), {
         userId: user.uid,
-        secretName,
+        secretName: encryptedSecretName,
         secretValue: encryptedSecret,
+        salt,  // Store salt for decryption
         createdAt: new Date().toISOString(),
       });
-
-      alert(`Secret saved successfully`);
+  
+      toast({
+        title: "Success!",
+        description: "Your secret has been encrypted and stored securely.",
+        variant: "default",
+      });
+  
+      // Clear form fields
       setSecretName("");
       setSecretValue("");
       setPassphrase("");
-
+  
+      // Log audit trail
       await logAuditTrail(user.uid, "Secret Encrypted", { secretName });
     } catch (error) {
       console.error("Error saving secret:", error);
-      alert("An error occurred while saving the secret. Please try again.");
+      toast({
+        title: "Error",
+        description: "An error occurred while saving the secret. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -169,6 +178,7 @@ const DeveloperStorage = () => {
         alert("No secret found with the given name.");
         setDecryptionSecretName("");
         setDecryptedValue("");
+        setPassphrase("");
         setIsLoading(false);
         return;
       }
@@ -188,11 +198,15 @@ const DeveloperStorage = () => {
         await logAuditTrail(user.uid, "Secret Decryption Failed", {
           secretName: decryptionSecretName,
         });
+        setDecryptionSecretName("");
+        setPassphrase("");
         setIsLoading(false);
         return;
       }
 
       setDecryptedValue(originalValue);
+      setDecryptionSecretName("");
+      setPassphrase("");
 
       await logAuditTrail(user.uid, "Secret Decrypted", {
         secretName: decryptionSecretName,
@@ -327,8 +341,8 @@ const DeveloperStorage = () => {
   };
 
   const handleBack = () => {
-    navigate(-1)
-  }
+    navigate(-1);
+  };
 
   return (
     <>
@@ -344,6 +358,7 @@ const DeveloperStorage = () => {
             className="bg-black border text-white hover:bg-white hover:text-black"
             onClick={() => {
               fetchSecrets();
+              setDecryptedValue("");
             }}
           >
             Home
@@ -355,6 +370,7 @@ const DeveloperStorage = () => {
               setShowDecryption(false);
               setShowSecrets(false);
               setShowAuditTrail(false);
+              setDecryptedValue("");
             }}
           >
             Encrypt
@@ -366,6 +382,7 @@ const DeveloperStorage = () => {
               setShowEncryption(false);
               setShowSecrets(false);
               setShowAuditTrail(false);
+              setDecryptedValue("");
             }}
           >
             Decrypt
@@ -378,14 +395,17 @@ const DeveloperStorage = () => {
               setShowDecryption(false);
               setShowSecrets(false);
               fetchAuditLogs(); // Fetch logs when button is clicked
+              setDecryptedValue("");
             }}
           >
             Audit Trail
           </Button>
-          <Button className="bg-black border text-white hover:bg-white hover:text-black"
-          onClick={() => {
-            handleBack()
-          }}>
+          <Button
+            className="bg-black border text-white hover:bg-white hover:text-black"
+            onClick={() => {
+              handleBack();
+            }}
+          >
             Back
           </Button>
         </div>
@@ -505,6 +525,7 @@ const DeveloperStorage = () => {
                       <Label htmlFor="passPhrase">Enter Passphrase</Label>
                       <Input
                         id="passPhrase"
+                        type="password"
                         placeholder="Enter PassPhrase"
                         value={passphrase}
                         onChange={(e) => setPassphrase(e.target.value)}
@@ -561,6 +582,7 @@ const DeveloperStorage = () => {
                       <Label htmlFor="passPhrase">Enter Passphrase</Label>
                       <Input
                         id="passPhrase"
+                        type="password"
                         placeholder="Enter PassPhrase"
                         value={passphrase}
                         onChange={(e) => setPassphrase(e.target.value)}
@@ -580,7 +602,7 @@ const DeveloperStorage = () => {
                     <br />
                     {decryptedValue && (
                       <div className="mt-4">
-                        <p className="text-gray-600">Decrypted Value:</p>
+                        <p className="text-gray-600">Decrypted Secret:</p>
                         <p className="text-gray-600">{decryptedValue}</p>
                       </div>
                     )}

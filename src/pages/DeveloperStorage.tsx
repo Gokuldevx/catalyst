@@ -150,7 +150,11 @@ const DeveloperStorage = () => {
     e.preventDefault();
   
     if (!decryptionSecretName || !passphrase) {
-      alert("Please provide the secret name and passphrase.");
+      toast({
+        title: "Missing Fields",
+        description: "Please provide the secret name and passphrase.",
+        variant: "destructive",
+      });
       return;
     }
   
@@ -160,7 +164,11 @@ const DeveloperStorage = () => {
       const user = auth.currentUser;
   
       if (!user) {
-        alert("User is not authenticated.");
+        toast({
+          title: "Authentication Error",
+          description: "User is not authenticated.",
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
@@ -175,9 +183,12 @@ const DeveloperStorage = () => {
       const querySnapshot = await getDocs(q);
   
       if (querySnapshot.empty) {
-        alert("No secret found with the given name.");
+        toast({
+          title: "Not Found",
+          description: "No secret found with the given name.",
+          variant: "destructive",
+        });
         setDecryptionSecretName("");
-        setDecryptedValue("");
         setPassphrase("");
         setIsLoading(false);
         return;
@@ -195,10 +206,12 @@ const DeveloperStorage = () => {
       const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
   
       if (!decryptedText) {
-        alert("Failed to decrypt the secret. Please check the passphrase.");
         await logAuditTrail(user.uid, "Secret Decryption Failed", { secretName: decryptionSecretName });
-        setDecryptionSecretName("");
-        setPassphrase("");
+        toast({
+          title: "Decryption Failed",
+          description: "Incorrect passphrase. Please try again.",
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
@@ -208,24 +221,36 @@ const DeveloperStorage = () => {
       const computedHmac = CryptoJS.HmacSHA256(originalValue, encryptionKey).toString();
   
       if (storedHmac !== computedHmac) {
-        alert("Secret integrity check failed. Possible tampering detected.");
         await logAuditTrail(user.uid, "Secret Integrity Check Failed", { secretName: decryptionSecretName });
-        setDecryptionSecretName("");
-        setPassphrase("");
+        toast({
+          title: "Integrity Check Failed",
+          description: "Secret integrity check failed. Possible tampering detected.",
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
   
       // 🔹 Display decrypted secret
       setDecryptedValue(originalValue);
-      setDecryptionSecretName("");
-      setPassphrase("");
-  
       await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
+  
+      toast({
+        title: "Success!",
+        description: "Secret decrypted successfully.",
+        variant: "default",
+      });
+  
     } catch (error) {
       console.error("Error decrypting secret:", error);
-      alert("An error occurred while decrypting the secret. Please try again.");
+      toast({
+        title: "Error",
+        description: "An error occurred while decrypting the secret. Please try again.",
+        variant: "destructive",
+      });
     } finally {
+      setDecryptionSecretName("");
+      setPassphrase("");
       setIsLoading(false);
     }
   };

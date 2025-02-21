@@ -108,15 +108,14 @@ const DeveloperStorage = () => {
       // 🔹 Compute HMAC for integrity verification
       const hmac = CryptoJS.HmacSHA256(secretValue, encryptionKey).toString();
   
-      // 🔹 Encrypt secret and HMAC together
+      // 🔹 Encrypt only the secret value (not the name)
       const encryptedSecret = CryptoJS.AES.encrypt(secretValue + "::" + hmac, encryptionKey).toString();
-      const encryptedSecretName = CryptoJS.AES.encrypt(secretName, encryptionKey).toString();
   
-      // 🔹 Save encrypted secret to Firestore
+      // 🔹 Save secret to Firestore (name in plain text)
       await addDoc(collection(db, "developerSecrets"), {
         userId: user.uid,
-        secretName: encryptedSecretName,
-        secretValue: encryptedSecret,
+        secretName,  // Store plain text
+        secretValue: encryptedSecret, // Store encrypted value
         salt,  // Store salt for decryption
         createdAt: new Date().toISOString(),
       });
@@ -145,35 +144,36 @@ const DeveloperStorage = () => {
       setIsLoading(false);
     }
   };
+  
 
   const handleDecryptSecret = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!decryptionSecretName || !passphrase) {
       alert("Please provide the secret name and passphrase.");
       return;
     }
-
+  
     try {
       setIsLoading(true);
       const auth = getAuth();
       const user = auth.currentUser;
-
+  
       if (!user) {
         alert("User is not authenticated.");
         setIsLoading(false);
         return;
       }
-
-      // Query Firestore for the secret
+  
+      // 🔹 Query Firestore for the selected secret
       const q = query(
         collection(db, "developerSecrets"),
         where("userId", "==", user.uid),
-        where("secretName", "==", decryptionSecretName)
+        where("secretName", "==", decryptionSecretName) // Match by plain-text name
       );
-
+  
       const querySnapshot = await getDocs(q);
-
+  
       if (querySnapshot.empty) {
         alert("No secret found with the given name.");
         setDecryptionSecretName("");
@@ -182,35 +182,46 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-
+  
       const secretData = querySnapshot.docs[0].data();
       const encryptedSecretValue = secretData.secretValue;
-
-      // Derive key using passphrase and UID
-      const encryptionKey = deriveKey(passphrase, user.uid);
-
-      // Decrypt the secret value
+      const salt = secretData.salt; // Retrieve salt for key derivation
+  
+      // 🔹 Derive key using passphrase and stored salt
+      const encryptionKey = deriveKey(passphrase, salt);
+  
+      // 🔹 Decrypt the secret value
       const bytes = CryptoJS.AES.decrypt(encryptedSecretValue, encryptionKey);
-      const originalValue = bytes.toString(CryptoJS.enc.Utf8);
-
-      if (!originalValue) {
+      const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+  
+      if (!decryptedText) {
         alert("Failed to decrypt the secret. Please check the passphrase.");
-        await logAuditTrail(user.uid, "Secret Decryption Failed", {
-          secretName: decryptionSecretName,
-        });
+        await logAuditTrail(user.uid, "Secret Decryption Failed", { secretName: decryptionSecretName });
         setDecryptionSecretName("");
         setPassphrase("");
         setIsLoading(false);
         return;
       }
-
+  
+      // 🔹 Verify HMAC integrity
+      const [originalValue, storedHmac] = decryptedText.split("::");
+      const computedHmac = CryptoJS.HmacSHA256(originalValue, encryptionKey).toString();
+  
+      if (storedHmac !== computedHmac) {
+        alert("Secret integrity check failed. Possible tampering detected.");
+        await logAuditTrail(user.uid, "Secret Integrity Check Failed", { secretName: decryptionSecretName });
+        setDecryptionSecretName("");
+        setPassphrase("");
+        setIsLoading(false);
+        return;
+      }
+  
+      // 🔹 Display decrypted secret
       setDecryptedValue(originalValue);
       setDecryptionSecretName("");
       setPassphrase("");
-
-      await logAuditTrail(user.uid, "Secret Decrypted", {
-        secretName: decryptionSecretName,
-      });
+  
+      await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
     } catch (error) {
       console.error("Error decrypting secret:", error);
       alert("An error occurred while decrypting the secret. Please try again.");
@@ -218,7 +229,8 @@ const DeveloperStorage = () => {
       setIsLoading(false);
     }
   };
-
+  
+  
   const fetchSecrets = async () => {
     try {
       setIsLoading(true);
@@ -226,7 +238,7 @@ const DeveloperStorage = () => {
       setShowEncryption(false);
       setShowDecryption(false);
       setShowAuditTrail(false);
-
+  
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
@@ -234,24 +246,23 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-
+  
+      // 🔹 Fetch secret names from Firestore (without decryption)
       const q = query(
         collection(db, "developerSecrets"),
         where("userId", "==", user.uid)
       );
-
+  
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
-        // alert("No secrets found.");
         setSecretNames([]);
         setShowSecrets(true);
         setIsLoading(false);
         return;
       }
-
-      const fetchedSecretNames = querySnapshot.docs.map(
-        (doc) => doc.data().secretName
-      );
+  
+      // Extract secret names directly
+      const fetchedSecretNames = querySnapshot.docs.map((doc) => doc.data().secretName);
       setSecretNames(fetchedSecretNames);
       setShowSecrets(true);
     } catch (error) {
@@ -260,7 +271,7 @@ const DeveloperStorage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   useEffect(() => {
     fetchSecrets();

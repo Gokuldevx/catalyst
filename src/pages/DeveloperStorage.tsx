@@ -76,7 +76,7 @@ const DeveloperStorage = () => {
 
   const handleSaveSecret = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!secretName || !secretValue || !passphrase) {
       toast({
         title: "Missing Fields",
@@ -85,12 +85,12 @@ const DeveloperStorage = () => {
       });
       return;
     }
-  
+
     try {
       setIsLoading(true);
       const auth = getAuth();
       const user = auth.currentUser;
-  
+
       if (!user) {
         toast({
           title: "Authentication Error",
@@ -100,55 +100,58 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-  
+
       // 🔹 Generate strong key using PBKDF2 with a random salt
       const salt = CryptoJS.lib.WordArray.random(16).toString();
       const encryptionKey = deriveKey(passphrase, salt);
-  
+
       // 🔹 Compute HMAC for integrity verification
       const hmac = CryptoJS.HmacSHA256(secretValue, encryptionKey).toString();
-  
+
       // 🔹 Encrypt only the secret value (not the name)
-      const encryptedSecret = CryptoJS.AES.encrypt(secretValue + "::" + hmac, encryptionKey).toString();
-  
+      const encryptedSecret = CryptoJS.AES.encrypt(
+        secretValue + "::" + hmac,
+        encryptionKey
+      ).toString();
+
       // 🔹 Save secret to Firestore (name in plain text)
       await addDoc(collection(db, "developerSecrets"), {
         userId: user.uid,
-        secretName,  // Store plain text
+        secretName, // Store plain text
         secretValue: encryptedSecret, // Store encrypted value
-        salt,  // Store salt for decryption
+        salt, // Store salt for decryption
         createdAt: new Date().toISOString(),
       });
-  
+
       toast({
         title: "Success!",
         description: "Your secret has been encrypted and stored securely.",
         variant: "default",
       });
-  
+
       // Clear form fields
       setSecretName("");
       setSecretValue("");
       setPassphrase("");
-  
+
       // Log audit trail
       await logAuditTrail(user.uid, "Secret Encrypted", { secretName });
     } catch (error) {
       console.error("Error saving secret:", error);
       toast({
         title: "Error",
-        description: "An error occurred while saving the secret. Please try again.",
+        description:
+          "An error occurred while saving the secret. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   const handleDecryptSecret = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!decryptionSecretName || !passphrase) {
       toast({
         title: "Missing Fields",
@@ -157,12 +160,12 @@ const DeveloperStorage = () => {
       });
       return;
     }
-  
+
     try {
       setIsLoading(true);
       const auth = getAuth();
       const user = auth.currentUser;
-  
+
       if (!user) {
         toast({
           title: "Authentication Error",
@@ -172,16 +175,16 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-  
+
       // 🔹 Query Firestore for the selected secret
       const q = query(
         collection(db, "developerSecrets"),
         where("userId", "==", user.uid),
         where("secretName", "==", decryptionSecretName) // Match by plain-text name
       );
-  
+
       const querySnapshot = await getDocs(q);
-  
+
       if (querySnapshot.empty) {
         toast({
           title: "Not Found",
@@ -193,20 +196,22 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-  
+
       const secretData = querySnapshot.docs[0].data();
       const encryptedSecretValue = secretData.secretValue;
       const salt = secretData.salt; // Retrieve salt for key derivation
-  
+
       // 🔹 Derive key using passphrase and stored salt
       const encryptionKey = deriveKey(passphrase, salt);
-  
+
       // 🔹 Decrypt the secret value
       const bytes = CryptoJS.AES.decrypt(encryptedSecretValue, encryptionKey);
       const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
-  
+
       if (!decryptedText) {
-        await logAuditTrail(user.uid, "Secret Decryption Failed", { secretName: decryptionSecretName });
+        await logAuditTrail(user.uid, "Secret Decryption Failed", {
+          secretName: decryptionSecretName,
+        });
         toast({
           title: "Decryption Failed",
           description: "Incorrect passphrase. Please try again.",
@@ -215,37 +220,45 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-  
+
       // 🔹 Verify HMAC integrity
       const [originalValue, storedHmac] = decryptedText.split("::");
-      const computedHmac = CryptoJS.HmacSHA256(originalValue, encryptionKey).toString();
-  
+      const computedHmac = CryptoJS.HmacSHA256(
+        originalValue,
+        encryptionKey
+      ).toString();
+
       if (storedHmac !== computedHmac) {
-        await logAuditTrail(user.uid, "Secret Integrity Check Failed", { secretName: decryptionSecretName });
+        await logAuditTrail(user.uid, "Secret Integrity Check Failed", {
+          secretName: decryptionSecretName,
+        });
         toast({
           title: "Integrity Check Failed",
-          description: "Secret integrity check failed. Possible tampering detected.",
+          description:
+            "Secret integrity check failed. Possible tampering detected.",
           variant: "destructive",
         });
         setIsLoading(false);
         return;
       }
-  
+
       // 🔹 Display decrypted secret
       setDecryptedValue(originalValue);
-      await logAuditTrail(user.uid, "Secret Decrypted", { secretName: decryptionSecretName });
-  
+      await logAuditTrail(user.uid, "Secret Decrypted", {
+        secretName: decryptionSecretName,
+      });
+
       toast({
         title: "Success!",
         description: "Secret decrypted successfully.",
         variant: "default",
       });
-  
     } catch (error) {
       console.error("Error decrypting secret:", error);
       toast({
         title: "Error",
-        description: "An error occurred while decrypting the secret. Please try again.",
+        description:
+          "An error occurred while decrypting the secret. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -254,8 +267,7 @@ const DeveloperStorage = () => {
       setIsLoading(false);
     }
   };
-  
-  
+
   const fetchSecrets = async () => {
     try {
       setIsLoading(true);
@@ -263,7 +275,7 @@ const DeveloperStorage = () => {
       setShowEncryption(false);
       setShowDecryption(false);
       setShowAuditTrail(false);
-  
+
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
@@ -271,13 +283,13 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-  
+
       // 🔹 Fetch secret names from Firestore (without decryption)
       const q = query(
         collection(db, "developerSecrets"),
         where("userId", "==", user.uid)
       );
-  
+
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
         setSecretNames([]);
@@ -285,9 +297,11 @@ const DeveloperStorage = () => {
         setIsLoading(false);
         return;
       }
-  
+
       // Extract secret names directly
-      const fetchedSecretNames = querySnapshot.docs.map((doc) => doc.data().secretName);
+      const fetchedSecretNames = querySnapshot.docs.map(
+        (doc) => doc.data().secretName
+      );
       setSecretNames(fetchedSecretNames);
       setShowSecrets(true);
     } catch (error) {
@@ -296,7 +310,7 @@ const DeveloperStorage = () => {
     } finally {
       setIsLoading(false);
     }
-  };  
+  };
 
   useEffect(() => {
     fetchSecrets();
@@ -307,75 +321,84 @@ const DeveloperStorage = () => {
       alert('You must type "delete" to confirm deletion.');
       return;
     }
-
+  
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-
       if (!user) {
         alert("User is not authenticated.");
         return;
       }
-
-      // Query Firestore for the specific secret to delete
+  
+      // 🔹 Query all matching secrets for deletion
       const q = query(
         collection(db, "developerSecrets"),
         where("userId", "==", user.uid),
         where("secretName", "==", deleteConfirmSecret)
       );
-
+  
       const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docRef = querySnapshot.docs[0].ref;
-        await deleteDoc(docRef);
-
-        // Update the state to remove the deleted secret
-        setSecretNames((prevNames) =>
-          prevNames.filter((name) => name !== deleteConfirmSecret)
-        );
-
-        setDeleteConfirmSecret(null); // Reset the deletion process
-        setConfirmationInput(""); // Clear the input
-
-        await logAuditTrail(user.uid, "Secret Deleted", {
-          secretName: deleteConfirmSecret,
-        });
-      } else {
+  
+      if (querySnapshot.empty) {
         alert("Secret not found.");
+        return;
       }
+  
+      // 🔹 Delete all matching documents
+      const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+  
+      // 🔹 Update UI state after deletion
+      setSecretNames((prevNames) =>
+        prevNames.filter((name) => name !== deleteConfirmSecret)
+      );
+      setDeleteConfirmSecret(""); // Reset input
+      setConfirmationInput(""); // Clear confirmation
+  
+      // 🔹 Log deletion event (Moved outside try-catch to ensure logging happens)
+      await logAuditTrail(user.uid, "Secret Deleted", { secretName: deleteConfirmSecret });
+  
     } catch (error) {
       console.error("Error deleting secret:", error);
       alert("An error occurred while deleting the secret. Please try again.");
     }
   };
-
+  
   const fetchAuditLogs = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user) return;
-
-    const q = query(
-      collection(db, "audit_logs"),
-      where("userId", "==", user.uid),
-      orderBy("timestamp", "desc")
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const logs: AuditLog[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        userId: doc.data().userId,
-        action: doc.data().action,
-        timestamp: doc.data().timestamp, // Ensure Firestore Timestamp is handled correctly
-        metadata: doc.data().metadata || {}, // Default empty object if metadata is missing
-      }));
-
-      setAuditLogs(logs);
-    });
-
-    return unsubscribe; // Cleanup on unmount
+  
+    try {
+      const q = query(
+        collection(db, "audit_logs"),
+        where("userId", "==", user.uid),
+        orderBy("timestamp", "desc")
+      );
+  
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        try {
+          const logs: AuditLog[] = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            userId: doc.data().userId,
+            action: doc.data().action,
+            timestamp: doc.data().timestamp, 
+            metadata: doc.data().metadata || {}, // Default empty object
+          }));
+  
+          setAuditLogs(logs);
+        } catch (error) {
+          console.error("Error processing audit logs:", error);
+        }
+      });
+  
+      return unsubscribe; // Cleanup on unmount
+  
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+    }
   };
-
+  
   const handleBack = () => {
     navigate(-1);
   };

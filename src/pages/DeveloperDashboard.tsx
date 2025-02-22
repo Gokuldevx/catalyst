@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getActiveJobs, submitApplication } from "@/lib/user";
 import { useNavigate } from "react-router-dom";
+import { Label } from "recharts";
 
 interface DeveloperProfile {
   firstName: string;
@@ -589,7 +590,7 @@ const DeveloperDashboard = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium">GitHub URL</label>
+              <Label className="text-sm font-medium">GitHub URL</Label>
               <Input
                 value={editedProfile?.github}
                 onChange={(e) =>

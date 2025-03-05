@@ -5,7 +5,7 @@
 
 # # Node.js
 node_modules/**
-package-lock.json
+# package-lock.json
 
 # IDE-specific files
 .vscode/

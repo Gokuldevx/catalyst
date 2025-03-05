@@ -1,7 +1,7 @@
 # Firebase
-firebase/*.json
-firebase/*.rules
-firebase/.firebaserc
+# firebase/*.json
+# firebase/*.rules
+# firebase/.firebaserc
 
 # # Node.js
 node_modules/**
@@ -11,19 +11,19 @@ package-lock.json
 .vscode/
 
 # # Other
-functions/
-dataconnect/
-dataconnect-generated/
+# functions/
+# dataconnect/
+# dataconnect-generated/
 catalyst.code-workspace
 # firestore.indexes.json
 # remoteconfig.template.json
-.firebaserc
-apphosting.yaml
-bun.lockb
+# .firebaserc
+# apphosting.yaml
+# bun.lockb
 # storage.rules
-firebase.json
-database.rules.json
-Design/
-src/vite-env.d.ts
-components.json
-apphosting.local.yaml
+# firebase.json
+# database.rules.json
+# Design/
+# src/vite-env.d.ts
+# components.json
+# apphosting.local.yaml

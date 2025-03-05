@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="bg-[hsl(222.2,47.4%,11.2%)] text-white py-12 mt-auto mt-20">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12">
-          {/* FounderBridge Section */}
+          {/* Catalyst Section */}
           <div className="space-y-6">
             <Link to="/" className="block">
               <h2 className="text-3xl font-bold text-primary-foreground">Catalyst</h2>

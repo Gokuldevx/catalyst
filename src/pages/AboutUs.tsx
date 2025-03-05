@@ -159,7 +159,7 @@ const AboutUs = () => {
                 <div className="flex gap-20">
                   <section className="border">
                     <img
-                      src="/public/Catalyst.jpg"
+                      src="/Catalyst.jpg"
                       height={150}
                       width={150}
                       className="rounded-full"
@@ -170,7 +170,7 @@ const AboutUs = () => {
                   </section>
                   <section className="border">
                     <img
-                      src="/public/Catalyst.jpg"
+                      src="/Catalyst.jpg"
                       height={150}
                       width={150}
                       className="rounded-full"
@@ -181,7 +181,7 @@ const AboutUs = () => {
                   </section>
                   <section className="border">
                     <img
-                      src="/public/Catalyst.jpg"
+                      src="/Catalyst.jpg"
                       height={150}
                       width={150}
                       className="rounded-full"

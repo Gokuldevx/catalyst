@@ -321,7 +321,7 @@ const DeveloperStorage = () => {
       alert('You must type "delete" to confirm deletion.');
       return;
     }
-  
+
     try {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -329,76 +329,78 @@ const DeveloperStorage = () => {
         alert("User is not authenticated.");
         return;
       }
-  
+
       // 🔹 Query all matching secrets for deletion
       const q = query(
         collection(db, "developerSecrets"),
         where("userId", "==", user.uid),
         where("secretName", "==", deleteConfirmSecret)
       );
-  
+
       const querySnapshot = await getDocs(q);
-  
+
       if (querySnapshot.empty) {
         alert("Secret not found.");
         return;
       }
-  
+
       // 🔹 Delete all matching documents
-      const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+      const deletePromises = querySnapshot.docs.map((doc) =>
+        deleteDoc(doc.ref)
+      );
       await Promise.all(deletePromises);
-  
+
       // 🔹 Update UI state after deletion
       setSecretNames((prevNames) =>
         prevNames.filter((name) => name !== deleteConfirmSecret)
       );
       setDeleteConfirmSecret(""); // Reset input
       setConfirmationInput(""); // Clear confirmation
-  
+
       // 🔹 Log deletion event (Moved outside try-catch to ensure logging happens)
-      await logAuditTrail(user.uid, "Secret Deleted", { secretName: deleteConfirmSecret });
-  
+      await logAuditTrail(user.uid, "Secret Deleted", {
+        secretName: deleteConfirmSecret,
+      });
     } catch (error) {
       console.error("Error deleting secret:", error);
       alert("An error occurred while deleting the secret. Please try again.");
     }
   };
-  
+
   const fetchAuditLogs = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user) return;
-  
+
     try {
       const q = query(
         collection(db, "audit_logs"),
         where("userId", "==", user.uid),
         orderBy("timestamp", "desc")
       );
-  
+
       const unsubscribe = onSnapshot(q, (snapshot) => {
         try {
           const logs: AuditLog[] = snapshot.docs.map((doc) => ({
             id: doc.id,
             userId: doc.data().userId,
             action: doc.data().action,
-            timestamp: doc.data().timestamp, 
+            timestamp: doc.data().timestamp,
             metadata: doc.data().metadata || {}, // Default empty object
           }));
-  
+
           setAuditLogs(logs);
         } catch (error) {
           console.error("Error processing audit logs:", error);
         }
       });
-  
+
       return unsubscribe; // Cleanup on unmount
-  
     } catch (error) {
       console.error("Error fetching audit logs:", error);
     }
   };
-  
+
   const handleBack = () => {
     navigate(-1);
   };

@@ -26,3 +26,4 @@ database.rules.json
 Design/
 src/vite-env.d.ts
 components.json
+apphosting.local.yaml

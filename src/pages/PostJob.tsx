@@ -352,13 +352,14 @@ export const PostJob = () => {
             <CardFooter className="flex justify-between">
               <Button
                 type="button"
-                variant="outline"
+                className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded"
                 onClick={() => navigate('/recruiter/dashboard')}
               >
                 Cancel
               </Button>
-              <Button type="submit">
-                Post Job
+              <Button type="submit"
+              className="bg-primary hover:bg-primary/90">
+                Post Idea
               </Button>
             </CardFooter>
           </form>

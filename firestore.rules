@@ -38,10 +38,11 @@ service cloud.firestore {
 
     // Developer Secrets collection
     match /developerSecrets/{secretId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn() && isOwner(request.auth.uid);
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.resource.data.keys().hasAll(["userId", "secretName", "secretValue", "createdAt"]) &&
+        request.resource.data.userId == request.auth.uid;
     }
-
     // Audit Logs collection
     match /audit_logs/{logId} {
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);

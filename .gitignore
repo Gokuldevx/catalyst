@@ -27,3 +27,4 @@ catalyst.code-workspace
 # src/vite-env.d.ts
 # components.json
 # apphosting.local.yaml
+.vercel

@@ -34,7 +34,7 @@ interface FormData {
   photoURL: string;
 }
 
-export const RecruiterSignup = () => {
+export const FounderSignup = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -45,19 +45,19 @@ export const RecruiterSignup = () => {
     const checkUserAndRedirect = async () => {
       const user = auth.currentUser;
       if (!user) {
-        navigate('/auth/recruiter', { replace: true });
+        navigate('/auth/founder', { replace: true });
         return;
       }
 
       // Check if user already has a profile
       try {
         const db = getFirestore();
-        const userRef = doc(db, 'recruiters', user.uid);
+        const userRef = doc(db, 'founders', user.uid);
         const userDoc = await getDoc(userRef);
         
         if (userDoc.exists()) {
           // User already has a profile, redirect to dashboard
-          navigate('/recruiterdashboard', { 
+          navigate('/founderdashboard', { 
             state: { uid: user.uid },
             replace: true 
           });
@@ -101,12 +101,12 @@ export const RecruiterSignup = () => {
           description: "Please sign in again to complete your profile.",
           variant: "destructive"
         });
-        navigate('/auth/recruiter', { replace: true });
+        navigate('/auth/founder', { replace: true });
         return;
       }
 
       const db = getFirestore();
-      const userRef = doc(db, 'recruiters', user.uid);
+      const userRef = doc(db, 'founders', user.uid);
       
       await setDoc(userRef, {
         ...formData,
@@ -119,7 +119,7 @@ export const RecruiterSignup = () => {
         description: "Your recruiter profile has been created successfully!",
       });
 
-      navigate('/recruiterdashboard', { 
+      navigate('/founderdashboard', { 
         state: { uid: user.uid },
         replace: true 
       });
@@ -184,7 +184,7 @@ export const RecruiterSignup = () => {
             Find Your Next Tech Co-founder
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed">
-            Connect with talented developers who can bring your vision to life. FounderBridge helps you find the perfect technical match for your startup.
+            Connect with talented developers who can bring your vision to life. Catalyst helps you find the perfect technical match for your startup.
           </p>
           <div className="space-y-4 py-6">
             <div className="flex items-center gap-3">
@@ -225,7 +225,7 @@ export const RecruiterSignup = () => {
             <Card className="border-none shadow-xl">
               <CardHeader>
                 <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                  Recruiter Profile
+                  Founder Profile
                 </h2>
                 <p className="mt-2 text-center text-gray-600">
                   Let's create your recruiter profile to find talented developers
@@ -277,6 +277,7 @@ export const RecruiterSignup = () => {
                         <SelectValue placeholder="Select funding stage" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
+                        <SelectItem value="none">None</SelectItem>
                         <SelectItem value="bootstrap">Bootstrapped</SelectItem>
                         <SelectItem value="seed">Seed</SelectItem>
                         <SelectItem value="seriesA">Series A</SelectItem>
@@ -380,4 +381,4 @@ export const RecruiterSignup = () => {
   );
 };
 
-export default RecruiterSignup;
+export default FounderSignup;

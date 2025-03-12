@@ -5,10 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 
 // Pages
 import Index from "./pages/Index"
-import { AuthSignup } from "./pages/AuthSignup"
+import { Auth } from "./pages/Auth"
 import DeveloperSignup from "./pages/DeveloperSignup"
-import RecruiterSignup from "./pages/RecruiterSignup"
-import RecruiterDashboard from './pages/RecruiterDashboard'
+import FounderSignup from "./pages/FounderSignup"
+import FounderDashboard from './pages/FounderDashboard'
 import DeveloperDashboard from './pages/DeveloperDashboard'
 import DeveloperStorage from './pages/DeveloperStorage';
 import AboutUs from './pages/AboutUs'
@@ -22,11 +22,11 @@ function App() {
         <div className="min-h-screen">
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth/developer" element={<AuthSignup userType="developer" />} />
-            <Route path="/auth/recruiter" element={<AuthSignup userType="recruiter" />} />
+            <Route path="/auth/developer" element={<Auth userType="developer" />} />
+            <Route path="/auth/founder" element={<Auth userType="founder" />} />
             <Route path="/signup/developer" element={<DeveloperSignup />} />
-            <Route path="/signup/recruiter" element={<RecruiterSignup />} />
-            <Route path="/recruiterdashboard" element={<RecruiterDashboard />} />
+            <Route path="/signup/founder" element={<FounderSignup />} />
+            <Route path="/founderdashboard" element={<FounderDashboard />} />
             <Route path="/developerdashboard" element={<DeveloperDashboard />} />            
             <Route path="/developerstorage" element={<DeveloperStorage />} />
             <Route path="/about" element={<AboutUs />} />

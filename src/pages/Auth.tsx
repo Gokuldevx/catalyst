@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Github, Mail, Loader2 } from 'lucide-react'
 import { useToast } from "@/components/ui/use-toast"
 
-type AuthSignupProps = {
-  userType: 'developer' | 'recruiter'
+type AuthProps = {
+  userType: 'developer' | 'founder'
 }
 
-export function AuthSignup({ userType }: AuthSignupProps) {
+export function Auth({ userType }: AuthProps) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<'google' | 'github' | null>(null)
   const { toast } = useToast()
@@ -143,13 +143,13 @@ export function AuthSignup({ userType }: AuthSignupProps) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Sign Up as {userType === 'developer' ? 'Developer' : 'Recruiter'}</CardTitle>
+          <CardTitle className="text-2xl">Sign Up as {userType === 'developer' ? 'Developer' : 'Founder'}</CardTitle>
           <CardDescription>Choose your preferred sign-up method</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
             variant="outline"
-            className="w-full h-12"
+            className="w-full h-12 bg-gradient-to-r hover:from-primary/90 hover:to-purple-700"
             onClick={() => handleAuth('google')}
             disabled={isLoading !== null}
           >
@@ -162,7 +162,7 @@ export function AuthSignup({ userType }: AuthSignupProps) {
           </Button>
           <Button
             variant="outline"
-            className="w-full h-12"
+            className="w-full h-12 bg-gradient-to-r hover:from-primary/90 hover:to-purple-700"
             onClick={() => handleAuth('github')}
             disabled={isLoading !== null}
           >

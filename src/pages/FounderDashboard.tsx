@@ -44,7 +44,7 @@ interface Candidate {
   whatsappNumber: string;
 }
 
-interface RecruiterProfile {
+interface FounderProfile {
   companyName: string;
   companyWebsite: string;
   companySize: string;
@@ -59,7 +59,7 @@ interface RecruiterProfile {
   photoURL: string;
 }
 
-interface IdeaPost extends RecruiterProfile {
+interface IdeaPost extends FounderProfile {
   cofounderRole: string;
   ideaDescription: string;
   responsibilities: string;
@@ -67,15 +67,15 @@ interface IdeaPost extends RecruiterProfile {
 }
 
 
-export const RecruiterDashboard = () => {
+export const FounderDashboard = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'pending' | 'reviewing' | 'accepted' | 'rejected'>('pending');
-  const [profile, setProfile] = useState<RecruiterProfile | null>(null);
+  const [profile, setProfile] = useState<FounderProfile | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<RecruiterProfile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<FounderProfile | null>(null);
   const [isPostingIdea, setIsPostingIdea] = useState(false);
   const [ideaPost, setIdeaPost] = useState<IdeaPost | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,11 +136,11 @@ export const RecruiterDashboard = () => {
         }
 
         // Fetch recruiter profile
-        const profileRef = doc(db, 'recruiters', uid);
+        const profileRef = doc(db, 'founders', uid);
         const profileSnap = await getDoc(profileRef);
 
         if (profileSnap.exists()) {
-          setProfile(profileSnap.data() as RecruiterProfile);
+          setProfile(profileSnap.data() as FounderProfile);
         }
 
         // Fetch applications for this recruiter's job posts
@@ -208,7 +208,7 @@ export const RecruiterDashboard = () => {
 
     try {
       const db = getFirestore();
-      const profileRef = doc(db, 'recruiters', location.state.uid);
+      const profileRef = doc(db, 'founders', location.state.uid);
       await updateDoc(profileRef, editedProfile);
 
       setProfile(editedProfile);
@@ -310,7 +310,7 @@ export const RecruiterDashboard = () => {
           {/* Header Section */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Recruiter Dashboard
+              Founder Dashboard
             </h1>
             <Button
               variant="outline"
@@ -365,8 +365,8 @@ export const RecruiterDashboard = () => {
                       >
                         {profile.companyWebsite}
                       </a>
-                      <p className="text-gray-600 mt-1">Size: {profile.companySize} employees</p>
-                      <p className="text-gray-600">Stage: {profile.fundingStage}</p>
+                      <p className="text-gray-600 mt-1">Company Size: {profile.companySize} employees</p>
+                      <p className="text-gray-600">Funding Stage: {profile.fundingStage}</p>
                     </div>
                   </div>
 
@@ -498,7 +498,7 @@ export const RecruiterDashboard = () => {
                         animate={{ opacity: 1 }}
                         className="bg-white p-8 rounded-lg shadow-xl text-center border border-gray-100"
                       >
-                        <p className="text-gray-500">No candidates found in {activeTab} status.</p>
+                        <p className="text-gray-500">No developers found in {activeTab} status.</p>
                       </motion.div>
                     )}
                   </div>
@@ -911,4 +911,4 @@ export const RecruiterDashboard = () => {
   );
 };
 
-export default RecruiterDashboard;
+export default FounderDashboard;

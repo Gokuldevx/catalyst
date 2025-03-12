@@ -22,7 +22,7 @@ export const Hero = () => {
             transform transition-all duration-300 ease-in-out
             hover:scale-105 hover:shadow-xl
             active:scale-95 active:shadow-md
-            backdrop-blur-sm"            onClick={() => navigate('/auth/recruiter')}
+            backdrop-blur-sm" onClick={() => navigate('/auth/founder')}
           >
             I'm a Founder
           </Button>

@@ -4,30 +4,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
 import { HiOutlineAcademicCap, HiOutlineBriefcase } from "react-icons/hi";
-import {
-  BsPencil,
-  BsBookmark,
-  BsBookmarkFill,
-  BsBriefcase,
-} from "react-icons/bs";
+import { BsPencil, BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { Navbar } from "@/components/Navbar";
 import { useLocation } from "react-router-dom";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  collection,
-  query,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getActiveJobs, submitApplication } from "@/lib/user";
@@ -76,23 +58,15 @@ const DeveloperDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"all" | "saved" | "applied">(
-    "all"
-  );
+  const [activeTab, setActiveTab] = useState<"all" | "saved" | "applied">("all");
   const [savedIdeas, setSavedIdeas] = useState<string[]>([]);
   const [profile, setProfile] = useState<DeveloperProfile | null>(null);
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<DeveloperProfile | null>(
-    null
-  );
+  const [editedProfile, setEditedProfile] = useState<DeveloperProfile | null>(null);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
-  const [applicationData, setApplicationData] = useState({
-    coverLetter: "",
-    resume: "",
-    whatsappNumber: "",
-  });
+  const [applicationData, setApplicationData] = useState({coverLetter: "", resume: "", whatsappNumber: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {

@@ -28,32 +28,23 @@ const Footer = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-2 mb-6">
                 <UserCircle className="w-6 h-6 text-primary-foreground" />
-                <h3 className="text-xl font-semibold text-primary-foreground">For Candidates</h3>
+                <h3 className="text-xl font-semibold text-primary-foreground">For Developers</h3>
               </div>
               <nav className="space-y-3">
                 <Link to="/overview" className="block text-gray-300 hover:text-white transition-colors">
                   Overview
                 </Link>
-                <Link to="/startup-jobs" className="block text-gray-300 hover:text-white transition-colors">
-                  Startup Jobs
+                <Link to="/startup-projects" className="block text-gray-300 hover:text-white transition-colors">
+                  Startup Projects
                 </Link>
-                <Link to="/web3-jobs" className="block text-gray-300 hover:text-white transition-colors">
-                  Web3 Jobs
+                <Link to="/web3-projects" className="block text-gray-300 hover:text-white transition-colors">
+                  Web3 Projects
                 </Link>
-                <Link to="/featured" className="block text-gray-300 hover:text-white transition-colors">
-                  Featured
-                </Link>
-                <Link to="/salary-calculator" className="block text-gray-300 hover:text-white transition-colors">
-                  Salary Calculator
-                </Link>
-                <Link to="/startup-hiring-data" className="block text-gray-300 hover:text-white transition-colors">
-                  Startup Hiring Data
+                <Link to="/secure" className="block text-gray-300 hover:text-white transition-colors">
+                  Secure Sensitive Credentials
                 </Link>
                 <Link to="/tech-startups" className="block text-gray-300 hover:text-white transition-colors">
                   Tech Startups
-                </Link>
-                <Link to="/remote" className="block text-gray-300 hover:text-white transition-colors">
-                  Remote
                 </Link>
               </nav>
             </div>
@@ -62,20 +53,17 @@ const Footer = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-2 mb-6">
                 <Building2 className="w-6 h-6 text-primary-foreground" />
-                <h3 className="text-xl font-semibold text-primary-foreground">For Recruiters</h3>
+                <h3 className="text-xl font-semibold text-primary-foreground">For Founders</h3>
               </div>
               <nav className="space-y-3">
                 <Link to="/recruiter/overview" className="block text-gray-300 hover:text-white transition-colors">
                   Overview
                 </Link>
-                <Link to="/recruiter/pro" className="block text-gray-300 hover:text-white transition-colors">
-                  Recruit Pro
+                <Link to="/recruiter/ideas" className="block text-gray-300 hover:text-white transition-colors">
+                  Showcase ideas
                 </Link>
-                <Link to="/recruiter/curated" className="block text-gray-300 hover:text-white transition-colors">
-                  Curated
-                </Link>
-                <Link to="/recruiter/hire-developers" className="block text-gray-300 hover:text-white transition-colors">
-                  Hire Developers
+                <Link to="/recruiter/find-developers" className="block text-gray-300 hover:text-white transition-colors">
+                  Find Developers
                 </Link>
               </nav>
             </div>

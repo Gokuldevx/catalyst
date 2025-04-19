@@ -34,6 +34,10 @@ export const Navbar = () => {
     navigate('/');
   };
 
+  const handleAbout = () => {
+    navigate('/about');
+  }
+
   return (
     <nav className="bg-white border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,6 +47,14 @@ export const Navbar = () => {
             className="text-2xl font-extrabold text-primary tracking-tight hover:opacity-80 transition-opacity">
             Catalyst
           </Link>
+          <div className="hidden md:flex space-x-4">
+            <Link to="/catalyst/" className="text-gray-700 hover:text-gray-900 transition-colors">Home</Link>
+            <Link 
+                to="/about  "
+                className="text-gray-700 hover:text-gray-900 transition-colors">
+                About Us
+              </Link>
+          </div>
           <div className="flex gap-4 items-center">
             {showSignOut ? (
               <Button 

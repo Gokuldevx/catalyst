@@ -48,10 +48,10 @@ export const Navbar = () => {
             Catalyst
           </Link>
           <div className="hidden md:flex space-x-4">
-            <Link to="/catalyst/" className="text-gray-700 hover:text-gray-900 transition-colors">Home</Link>
+            <Link to="/catalyst/" className="text-black hover:text-gray-400 transition-colors">Home</Link>
             <Link 
                 to="/about  "
-                className="text-gray-700 hover:text-gray-900 transition-colors">
+                className="text-black hover:text-gray-400 transition-colors">
                 About Us
               </Link>
           </div>

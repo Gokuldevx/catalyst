@@ -67,8 +67,6 @@ export const PostJob = () => {
         return;
       }
 
-      console.log('Current user:', user); // Debug log
-
       if (!formData.cofounderRole || !formData.ideaDescription || !formData.techStack) {
         toast({
           title: "Error",
@@ -100,10 +98,7 @@ export const PostJob = () => {
         techStack: formData.techStack
       };
 
-      console.log('Submitting job data:', jobData); // Debug log
-
       const result = await createJobListing(jobData);
-      console.log('Job creation result:', result); // Debug log
       
       if (result.success) {
         toast({

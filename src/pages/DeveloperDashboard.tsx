@@ -111,9 +111,7 @@ const DeveloperDashboard = () => {
   useEffect(() => {
     const fetchIdeas = async () => {
       try {
-        console.log("Starting to fetch ideas..."); // Debug log
         const ideasData = await getActiveJobs();
-        console.log("Received ideas data:", ideasData); // Debug log
         setIdeas(ideasData);
       } catch (error) {
         console.error("Error fetching ideas:", error);

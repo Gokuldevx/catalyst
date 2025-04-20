@@ -20,12 +20,9 @@ export function Auth({ userType }: AuthProps) {
   const handleAuth = async (provider: 'google' | 'github') => {
     try {
       setIsLoading(provider)
-      console.log('Starting authentication with:', provider)
-      
+
       const authProvider = provider === 'google' ? googleProvider : githubProvider
       const result = await signInWithPopup(auth, authProvider)
-      
-      console.log('Authentication successful:', result.user)
       
       if (!result.user.email) {
         throw new Error('No email provided from authentication provider')
@@ -45,8 +42,6 @@ export function Auth({ userType }: AuthProps) {
         uid: result.user.uid,
         github: provider === 'github' ? githubUsername : ''
       }
-
-      console.log('Navigating to signup with user data:', userData)
       
       navigate(`/signup/${userType}`, {
         state: userData,

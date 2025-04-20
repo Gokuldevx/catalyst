@@ -56,7 +56,7 @@ const DeveloperStorage = () => {
     metadata: any = {}
   ) => {
     try {
-      await addDoc(collection(db, "audit_logs"), {
+      await addDoc(collection(db, "auditLogs"), {
         userId,
         action,
         timestamp: Timestamp.now(),
@@ -374,7 +374,7 @@ const DeveloperStorage = () => {
 
     try {
       const q = query(
-        collection(db, "audit_logs"),
+        collection(db, "auditLogs"),
         where("userId", "==", user.uid),
         orderBy("timestamp", "desc")
       );

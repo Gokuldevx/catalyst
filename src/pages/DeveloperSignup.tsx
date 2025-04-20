@@ -46,7 +46,6 @@ export const DeveloperSignup = () => {
     const checkUserAndRedirect = async () => {
       const user = auth.currentUser;
       if (!user) {
-        console.log('No authenticated user found');
         navigate('/auth/developer', { replace: true });
         return;
       }

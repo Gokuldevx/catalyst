@@ -28,3 +28,6 @@ catalyst.code-workspace
 # components.json
 # apphosting.local.yaml
 .vercel
+dist/
+design/
+

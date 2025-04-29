@@ -76,7 +76,7 @@ export function Auth({ userType }: AuthProps) {
             console.error(`
               Firebase Domain Error: Please follow these steps:
               1. Go to Firebase Console
-              2. Select project: cofoundry-6ab44
+              2. Select project: founderbridge-
               3. Go to Authentication > Settings
               4. Add these domains:
                  - localhost
@@ -93,7 +93,7 @@ export function Auth({ userType }: AuthProps) {
             console.error(`
               Firebase Auth Error: Please follow these steps:
               1. Go to Firebase Console
-              2. Select project: cofoundry-6ab44
+              2. Select project: founderbridge
               3. Go to Authentication > Sign-in method
               4. Enable ${provider} authentication
             `)

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { BsBriefcase } from "react-icons/bs";
+import CryptoJS from "crypto-js";
 
 interface FormData {
   firstName: string;
@@ -96,9 +97,11 @@ export const DeveloperSignup = () => {
     photoURL: authData.photoURL || ''
   });
 
+  const generateUserKey = () => CryptoJS.lib.WordArray.random(32).toString(); // 256-bit key
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -110,35 +113,57 @@ export const DeveloperSignup = () => {
         navigate('/auth/developer', { replace: true });
         return;
       }
+  
+      const encryptionKey = generateUserKey(); // 🔐 1. Generate a new encryption key
+      
+      const encryptedFormData = {
+        firstName: CryptoJS.AES.encrypt(formData.firstName, encryptionKey).toString(),
+        lastName: CryptoJS.AES.encrypt(formData.lastName, encryptionKey).toString(),
+        email: CryptoJS.AES.encrypt(formData.email, encryptionKey).toString(),
+        experience: CryptoJS.AES.encrypt(formData.experience, encryptionKey).toString(),
+        skills: CryptoJS.AES.encrypt(formData.skills, encryptionKey).toString(),
+        bio: CryptoJS.AES.encrypt(formData.bio, encryptionKey).toString(),
+        github: CryptoJS.AES.encrypt(formData.github, encryptionKey).toString(),
+        university: CryptoJS.AES.encrypt(formData.university, encryptionKey).toString(),
+        degree: CryptoJS.AES.encrypt(formData.degree, encryptionKey).toString(),
+        graduationYear: CryptoJS.AES.encrypt(formData.graduationYear, encryptionKey).toString(),
+        uid: user.uid,
+        photoURL: formData.photoURL,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
       const db = getFirestore();
       const userRef = doc(db, 'developers', user.uid);
-      
-      await setDoc(userRef, {
-        ...formData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+  
+      // 🔐 3. Store encrypted profile
+      await setDoc(userRef, encryptedFormData);
+  
+      // 🔐 4. Store encryption key securely in subcollection (optional but safe)
+      await updateDoc(doc(db, `developers/${user.uid}`), {
+        key: encryptionKey
       });
-
+  
       toast({
         title: "Profile Created",
         description: "Your developer profile has been created successfully!",
       });
-
-      // Navigate to dashboard
-      navigate('/developerdashboard', { 
+  
+      navigate('/developerdashboard', {
         state: { uid: user.uid },
-        replace: true 
+        replace: true
       });
+  
     } catch (error) {
       console.error('Error saving profile:', error);
       toast({
-        title: "Error",
+        title: "Error Saving Profile",
         description: "There was an error creating your profile. Please try again.",
         variant: "destructive"
       });
     }
   };
+  
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({

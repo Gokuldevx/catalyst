@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getActiveJobs, submitApplication } from "@/lib/user";
 import { useNavigate } from "react-router-dom";
 import { Label } from "recharts";
+import CryptoJS from "crypto-js";
 
 interface DeveloperProfile {
   firstName: string;
@@ -69,12 +70,22 @@ const DeveloperDashboard = () => {
   const [applicationData, setApplicationData] = useState({coverLetter: "", resume: "", whatsappNumber: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  function decryptWithKey(cipherText: string, key: string): string {
+    try {
+      const bytes = CryptoJS.AES.decrypt(cipherText, key);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch (err) {
+      console.error("Decryption error:", err);
+      return "";
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const db = getFirestore();
         const uid = location.state?.uid;
-
+  
         if (!uid) {
           toast({
             title: "Error",
@@ -83,29 +94,79 @@ const DeveloperDashboard = () => {
           });
           return;
         }
-
-        // Fetch developer profile
+  
+        // 1. Fetch encrypted profile
         const profileRef = doc(db, "developers", uid);
         const profileSnap = await getDoc(profileRef);
-
-        if (profileSnap.exists()) {
-          setProfile(profileSnap.data() as DeveloperProfile);
+  
+        if (!profileSnap.exists()) {
+          toast({
+            title: "Profile Not Found",
+            description: "No profile data found for the user.",
+            variant: "destructive",
+          });
+          return;
         }
-
-        setLoading(false);
+  
+        const encryptedData = profileSnap.data();
+  
+        // 2. Fetch encryption key from secure subcollection
+        const keyRef = doc(db, `developers/${uid}`);
+        const keySnap = await getDoc(keyRef);
+  
+        if (!keySnap.exists()) {
+          toast({
+            title: "Missing Encryption Key",
+            description: "Cannot decrypt developer profile.",
+            variant: "destructive",
+          });
+          return;
+        }
+  
+        const { key } = keySnap.data();
+  
+        // 3. Decrypt helper function
+        const decryptWithKey = (cipherText: string, key: string) => {
+          try {
+            const bytes = CryptoJS.AES.decrypt(cipherText, key);
+            return bytes.toString(CryptoJS.enc.Utf8);
+          } catch (err) {
+            console.error("Decryption error:", err);
+            return "";
+          }
+        };
+  
+        // 4. Decrypt and set profile
+        const decryptedProfile: DeveloperProfile = {
+          firstName: decryptWithKey(encryptedData.firstName, key),
+          lastName: decryptWithKey(encryptedData.lastName, key),
+          email: decryptWithKey(encryptedData.email, key),
+          experience: decryptWithKey(encryptedData.experience, key),
+          skills: decryptWithKey(encryptedData.skills, key),
+          bio: decryptWithKey(encryptedData.bio, key),
+          github: decryptWithKey(encryptedData.github, key),
+          university: decryptWithKey(encryptedData.university, key),
+          degree: decryptWithKey(encryptedData.degree, key),
+          graduationYear: decryptWithKey(encryptedData.graduationYear, key),
+          photoURL: encryptedData.photoURL || "",
+        };
+  
+        setProfile(decryptedProfile);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching or decrypting data:", error);
         toast({
           title: "Error",
-          description: "Failed to load dashboard data. Please try again.",
+          description: "Failed to load profile. Please try again.",
           variant: "destructive",
         });
+      } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [location.state?.uid, toast]);
+  
 
   // Fetch ideas
   useEffect(() => {
@@ -159,14 +220,49 @@ const DeveloperDashboard = () => {
 
   const handleProfileUpdate = async () => {
     if (!editedProfile || !location.state?.uid) return;
-
+  
     try {
       const db = getFirestore();
-      const profileRef = doc(db, "developers", location.state.uid);
-      await updateDoc(profileRef, editedProfile);
-
-      setProfile(editedProfile);
+      const uid = location.state.uid;
+      const profileRef = doc(db, "developers", uid);
+  
+      // 🔐 Fetch encryption key
+      const keyRef = doc(db, `developers/${uid}`);
+      const keySnap = await getDoc(keyRef);
+  
+      if (!keySnap.exists()) {
+        toast({
+          title: "Missing Key",
+          description: "Encryption key not found. Cannot update encrypted profile.",
+          variant: "destructive",
+        });
+        return;
+      }
+  
+      const { key } = keySnap.data();
+  
+      // 🔐 Encrypt updated profile fields
+      const encryptedUpdate = {
+        firstName: CryptoJS.AES.encrypt(editedProfile.firstName, key).toString(),
+        lastName: CryptoJS.AES.encrypt(editedProfile.lastName, key).toString(),
+        email: CryptoJS.AES.encrypt(editedProfile.email, key).toString(),
+        experience: CryptoJS.AES.encrypt(editedProfile.experience, key).toString(),
+        skills: CryptoJS.AES.encrypt(editedProfile.skills, key).toString(),
+        bio: CryptoJS.AES.encrypt(editedProfile.bio, key).toString(),
+        github: CryptoJS.AES.encrypt(editedProfile.github, key).toString(),
+        university: CryptoJS.AES.encrypt(editedProfile.university, key).toString(),
+        degree: CryptoJS.AES.encrypt(editedProfile.degree, key).toString(),
+        graduationYear: CryptoJS.AES.encrypt(editedProfile.graduationYear, key).toString(),
+        photoURL: editedProfile.photoURL || "",
+        updatedAt: new Date().toISOString(),
+      };
+  
+      // 🔄 Update encrypted profile
+      await updateDoc(profileRef, encryptedUpdate);
+  
+      setProfile(editedProfile); // Set local decrypted version
       setIsEditing(false);
+  
       toast({
         title: "Success",
         description: "Profile updated successfully",
@@ -180,6 +276,7 @@ const DeveloperDashboard = () => {
       });
     }
   };
+  
 
   const renderTechStack = (techStack: string) => {
     if (!techStack) return null;

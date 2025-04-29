@@ -9,6 +9,7 @@ node_modules/**
 
 # IDE-specific files
 .vscode/
+.env
 
 # # Other
 # functions/

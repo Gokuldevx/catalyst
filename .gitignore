@@ -29,6 +29,6 @@ catalyst.code-workspace
 # apphosting.local.yaml
 .vercel
 dist/
-design/
+design/*
 
 

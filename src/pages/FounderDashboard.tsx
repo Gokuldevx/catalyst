@@ -161,8 +161,41 @@ export const FounderDashboard = () => {
         const profileSnap = await getDoc(profileRef);
 
         if (profileSnap.exists()) {
-          setProfile(profileSnap.data() as FounderProfile);
+          const encryptedData = profileSnap.data();
+        
+          const key = encryptedData.encryptionKey;
+          if (!key) {
+            toast({
+              title: "Missing Encryption Key",
+              description: "Could not decrypt profile data.",
+              variant: "destructive",
+            });
+            return;
+          }
+        
+          // Decrypt function
+          const decrypt = (cipher: string) =>
+            CryptoJS.AES.decrypt(cipher, key).toString(CryptoJS.enc.Utf8);
+        
+          // Decrypted profile
+          const decryptedProfile: FounderProfile = {
+            companyName: decrypt(encryptedData.companyName),
+            companyWebsite: decrypt(encryptedData.companyWebsite),
+            companySize: decrypt(encryptedData.companySize),
+            fundingStage: decrypt(encryptedData.fundingStage),
+            equityRange: decrypt(encryptedData.equityRange),
+            salaryRange: decrypt(encryptedData.salaryRange),
+            roleDescription: decrypt(encryptedData.roleDescription),
+            techStack: decrypt(encryptedData.techStack),
+            experienceRequired: decrypt(encryptedData.experienceRequired),
+            email: decrypt(encryptedData.email),
+            uid: encryptedData.uid,
+            photoURL: encryptedData.photoURL || "",
+          };
+        
+          setProfile(decryptedProfile);
         }
+        
 
         // Fetch applications for this founder's idea posts
         const applicationsRef = collection(db, "applications");

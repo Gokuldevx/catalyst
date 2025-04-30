@@ -114,7 +114,7 @@ export const DeveloperSignup = () => {
         return;
       }
   
-      const encryptionKey = generateUserKey(); // 🔐 1. Generate a new encryption key
+      const encryptionKey = generateUserKey(); 
       
       const encryptedFormData = {
         firstName: CryptoJS.AES.encrypt(formData.firstName, encryptionKey).toString(),
@@ -137,11 +137,9 @@ export const DeveloperSignup = () => {
       const userRef = doc(db, 'developers', user.uid);
   
       //Store encrypted profile
-      await setDoc(userRef, encryptedFormData);
-  
-      //Store encryption key securely
-      await updateDoc(doc(db, `developers/${user.uid}`), {
-        key: encryptionKey
+      await setDoc(userRef, {
+        ...encryptedFormData,
+        encryptionKey // 🔐 include it directly here
       });
   
       toast({

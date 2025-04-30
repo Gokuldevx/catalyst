@@ -130,10 +130,9 @@ export const FounderSignup = () => {
       const db = getFirestore();
       const userRef = doc(db, 'founders', user.uid);
 
-      await setDoc(userRef, encryptedFormData);
-      
-      await updateDoc(doc(db, `developers/${user.uid}`), {
-        key: encryptionKey
+      await setDoc(userRef, {
+        ...encryptedFormData,
+        encryptionKey
       });
 
       toast({

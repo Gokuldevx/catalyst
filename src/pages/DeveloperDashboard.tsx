@@ -29,6 +29,7 @@ interface DeveloperProfile {
   degree: string;
   graduationYear: string;
   photoURL: string;
+  uid: string;
 }
 
 interface Idea {
@@ -70,16 +71,6 @@ const DeveloperDashboard = () => {
   const [applicationData, setApplicationData] = useState({coverLetter: "", resume: "", whatsappNumber: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function decryptWithKey(cipherText: string, key: string): string {
-    try {
-      const bytes = CryptoJS.AES.decrypt(cipherText, key);
-      return bytes.toString(CryptoJS.enc.Utf8);
-    } catch (err) {
-      console.error("Decryption error:", err);
-      return "";
-    }
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -99,16 +90,39 @@ const DeveloperDashboard = () => {
         const profileRef = doc(db, "developers", uid);
         const profileSnap = await getDoc(profileRef);
   
-        if (!profileSnap.exists()) {
-          toast({
-            title: "Profile Not Found",
-            description: "No profile data found for the user.",
-            variant: "destructive",
-          });
-          return;
+        if (profileSnap.exists()) {
+          const encryptedData = profileSnap.data();
+
+          const key = encryptedData.encryptionKey;
+          if(!key) {
+            toast({
+              title: "Missing Encryption Key",
+              description: "Could not decrypt profile data.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const decrypt = (cipher: string) =>
+            CryptoJS.AES.decrypt(cipher, key).toString(CryptoJS.enc.Utf8);
+
+          const decryptedProfile: DeveloperProfile = {
+            firstName: decrypt(encryptedData.firstName),
+            lastName: decrypt(encryptedData.lastName),
+            email: decrypt(encryptedData.email),
+            experience: decrypt(encryptedData.experience),
+            skills: decrypt(encryptedData.skills),
+            bio: decrypt(encryptedData.bio),
+            github: decrypt(encryptedData.github),
+            university: decrypt(encryptedData.university),
+            degree: decrypt(encryptedData.degree),
+            graduationYear: decrypt(encryptedData.graduationYear),
+            uid: encryptedData.uid,
+            photoURL: encryptedData.photoURL || "",
+          };
+
+          setProfile(decryptedProfile);
         }
-  
-        const encryptedData = profileSnap.data();
   
         // 2. Fetch encryption key from secure subcollection
         const keyRef = doc(db, `developers/${uid}`);
@@ -123,35 +137,6 @@ const DeveloperDashboard = () => {
           return;
         }
   
-        const { key } = keySnap.data();
-  
-        // 3. Decrypt helper function
-        const decryptWithKey = (cipherText: string, key: string) => {
-          try {
-            const bytes = CryptoJS.AES.decrypt(cipherText, key);
-            return bytes.toString(CryptoJS.enc.Utf8);
-          } catch (err) {
-            console.error("Decryption error:", err);
-            return "";
-          }
-        };
-  
-        // 4. Decrypt and set profile
-        const decryptedProfile: DeveloperProfile = {
-          firstName: decryptWithKey(encryptedData.firstName, key),
-          lastName: decryptWithKey(encryptedData.lastName, key),
-          email: decryptWithKey(encryptedData.email, key),
-          experience: decryptWithKey(encryptedData.experience, key),
-          skills: decryptWithKey(encryptedData.skills, key),
-          bio: decryptWithKey(encryptedData.bio, key),
-          github: decryptWithKey(encryptedData.github, key),
-          university: decryptWithKey(encryptedData.university, key),
-          degree: decryptWithKey(encryptedData.degree, key),
-          graduationYear: decryptWithKey(encryptedData.graduationYear, key),
-          photoURL: encryptedData.photoURL || "",
-        };
-  
-        setProfile(decryptedProfile);
       } catch (error) {
         console.error("Error fetching or decrypting data:", error);
         toast({
@@ -163,7 +148,6 @@ const DeveloperDashboard = () => {
         setLoading(false);
       }
     };
-  
     fetchData();
   }, [location.state?.uid, toast]);
   
@@ -257,7 +241,7 @@ const DeveloperDashboard = () => {
         updatedAt: new Date().toISOString(),
       };
   
-      // 🔄 Update encrypted profile
+      //Update encrypted profile
       await updateDoc(profileRef, encryptedUpdate);
   
       setProfile(editedProfile); // Set local decrypted version

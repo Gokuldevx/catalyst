@@ -15,9 +15,10 @@ import { motion } from "framer-motion";
 import { BsBuilding, BsCurrencyDollar } from "react-icons/bs";
 import { HiOutlineDocumentText } from "react-icons/hi";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import CryptoJS from "crypto-js";
 
 interface FormData {
   companyName: string;
@@ -90,6 +91,8 @@ export const FounderSignup = () => {
     photoURL: authData.photoURL || ''
   });
 
+  const generateUserKey = () => CryptoJS.lib.WordArray.random(32).toString(); // 256-bit key
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -105,13 +108,32 @@ export const FounderSignup = () => {
         return;
       }
 
-      const db = getFirestore();
-      const userRef = doc(db, 'founders', user.uid);
-      
-      await setDoc(userRef, {
-        ...formData,
+      const encryptionKey = generateUserKey();
+
+      const encryptedFormData = {
+        companyName: CryptoJS.AES.encrypt(formData.companyName, encryptionKey).toString(),
+        companyWebsite: CryptoJS.AES.encrypt(formData.companyWebsite, encryptionKey).toString(),
+        companySize: CryptoJS.AES.encrypt(formData.companySize, encryptionKey).toString(),
+        fundingStage: CryptoJS.AES.encrypt(formData.fundingStage, encryptionKey).toString(),
+        equityRange: CryptoJS.AES.encrypt(formData.equityRange, encryptionKey).toString(),
+        salaryRange: CryptoJS.AES.encrypt(formData.salaryRange, encryptionKey).toString(),
+        roleDescription: CryptoJS.AES.encrypt(formData.roleDescription, encryptionKey).toString(),
+        techStack: CryptoJS.AES.encrypt(formData.techStack, encryptionKey).toString(),
+        experienceRequired: CryptoJS.AES.encrypt(formData.experienceRequired, encryptionKey).toString(),
+        email: CryptoJS.AES.encrypt(formData.email, encryptionKey).toString(),
+        uid: user.uid,
+        photoURL: formData.photoURL,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
+      };
+
+      const db = getFirestore();
+      const userRef = doc(db, 'founders', user.uid);
+
+      await setDoc(userRef, encryptedFormData);
+      
+      await updateDoc(doc(db, `developers/${user.uid}`), {
+        key: encryptionKey
       });
 
       toast({

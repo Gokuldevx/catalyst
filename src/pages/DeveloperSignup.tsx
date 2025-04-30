@@ -136,10 +136,10 @@ export const DeveloperSignup = () => {
       const db = getFirestore();
       const userRef = doc(db, 'developers', user.uid);
   
-      // 🔐 3. Store encrypted profile
+      //Store encrypted profile
       await setDoc(userRef, encryptedFormData);
   
-      // 🔐 4. Store encryption key securely in subcollection (optional but safe)
+      //Store encryption key securely
       await updateDoc(doc(db, `developers/${user.uid}`), {
         key: encryptionKey
       });

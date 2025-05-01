@@ -187,6 +187,10 @@ export const DeveloperSignup = () => {
     transition: { duration: 0.5 }
   };
 
+  const handleBack = () => {
+    navigate("/");
+  };
+
   return (
     <>
     <Navbar/>
@@ -435,15 +439,15 @@ export const DeveloperSignup = () => {
               <CardFooter className="flex justify-end space-x-4">
                 <Button 
                   type="button" 
-                  variant="outline"
-                  className="hover:bg-gray-100 transition-colors"
+                  variant="destructive"
+                  onClick={handleBack}
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit"
                   disabled={!isFormValid()}
-                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity"
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity border-none"
                 >
                   Create Profile
                 </Button>

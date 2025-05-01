@@ -144,7 +144,7 @@ export function Auth({ userType }: AuthProps) {
         <CardContent className="space-y-4">
           <Button
             variant="outline"
-            className="w-full h-12 bg-gradient-to-r hover:from-primary/90 hover:to-purple-700"
+            className="w-full h-12 bg-gradient-to-r hover:from-primary/90 hover:to-purple-700 hover:border-none"
             onClick={() => handleAuth('google')}
             disabled={isLoading !== null}
           >
@@ -157,7 +157,7 @@ export function Auth({ userType }: AuthProps) {
           </Button>
           <Button
             variant="outline"
-            className="w-full h-12 bg-gradient-to-r hover:from-primary/90 hover:to-purple-700"
+            className="w-full h-12 bg-gradient-to-r hover:from-primary/90 hover:to-purple-700 hover:border-none"
             onClick={() => handleAuth('github')}
             disabled={isLoading !== null}
           >

@@ -17,7 +17,7 @@ export const Hero = () => {
         <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mt-16">
           <Button
             size="lg"
-            className="w-full sm:w-auto text-xl px-12 py-8 rounded-xl text-white shadow-lg 
+            className="w-full border-none sm:w-auto text-xl px-12 py-8 rounded-xl text-white shadow-lg 
             bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
             transform transition-all duration-300 ease-in-out
             hover:scale-105 hover:shadow-xl
@@ -28,7 +28,7 @@ export const Hero = () => {
           </Button>
           <Button
             size="lg"
-            className="w-full sm:w-auto text-xl px-12 py-8 rounded-xl text-white shadow-lg 
+            className="w-full border-none sm:w-auto text-xl px-12 py-8 rounded-xl text-white shadow-lg 
             bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
             transform transition-all duration-300 ease-in-out
             hover:scale-105 hover:shadow-xl

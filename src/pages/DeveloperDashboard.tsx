@@ -223,7 +223,16 @@ const DeveloperDashboard = () => {
         return;
       }
   
-      const { key } = keySnap.data();
+      const { encryptionKey: key } = keySnap.data();
+      if (!key || typeof key !== "string") {
+        toast({
+          title: "Invalid Key",
+          description: "Encryption key is missing or malformed.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
   
       // 🔐 Encrypt updated profile fields
       const encryptedUpdate = {
@@ -333,7 +342,7 @@ const DeveloperDashboard = () => {
 
             
               <Button
-                className="text-white shadow-lg 
+                className="text-white border-none shadow-lg 
               bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700
               transform transition-all duration-300 ease-in-out
               hover:scale-105 hover:shadow-xl
@@ -453,7 +462,7 @@ const DeveloperDashboard = () => {
                           className={`capitalize ${
                             activeTab === status
                               ? "bg-primary hover:bg-primary/90"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-primary"
                           }`}
                         >
                           {status}
@@ -667,7 +676,7 @@ const DeveloperDashboard = () => {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button variant="destructive" onClick={() => setIsEditing(false)}>
                 Cancel
               </Button>
               <Button onClick={handleProfileUpdate}>Save Changes</Button>
@@ -731,10 +740,12 @@ const DeveloperDashboard = () => {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setSelectedIdea(null)}>
+                <Button variant="destructive" onClick={() => setSelectedIdea(null)}>
                   Cancel
                 </Button>
                 <Button
+                  variant="default"
+                  className="border-2 border-green-600 bg-green-600 hover:bg-white hover:text-green-600 "
                   onClick={() => handleSubmitApplication(selectedIdea.id)}
                   disabled={
                     isSubmitting ||

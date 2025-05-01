@@ -416,7 +416,8 @@ const DeveloperStorage = () => {
         </div>
         <div className="flex gap-2">
           <Button
-            className="bg-black border text-white hover:bg-white hover:text-black"
+            variant="default"
+            className="hover:bg-white hover:text-black"
             onClick={() => {
               fetchSecrets();
               setDecryptedValue("");
@@ -425,7 +426,8 @@ const DeveloperStorage = () => {
             Home
           </Button>
           <Button
-            className="bg-black border text-white hover:bg-white hover:text-black"
+            variant="default"
+            className="hover:bg-white hover:text-black"
             onClick={() => {
               setShowEncryption(true);
               setShowDecryption(false);
@@ -437,7 +439,8 @@ const DeveloperStorage = () => {
             Encrypt
           </Button>
           <Button
-            className="bg-black border text-white hover:bg-white hover:text-black"
+            variant="default"
+            className="hover:bg-white hover:text-black"
             onClick={() => {
               setShowDecryption(true);
               setShowEncryption(false);
@@ -449,7 +452,8 @@ const DeveloperStorage = () => {
             Decrypt
           </Button>
           <Button
-            className="bg-black border text-white hover:bg-white hover:text-black"
+            variant="default"
+            className="hover:bg-white hover:text-black"
             onClick={() => {
               setShowAuditTrail(true);
               setShowEncryption(false);
@@ -462,7 +466,8 @@ const DeveloperStorage = () => {
             Audit Trail
           </Button>
           <Button
-            className="bg-black border text-white hover:bg-white hover:text-black"
+            variant="default"
+            className="hover:bg-white hover:text-black"
             onClick={() => {
               handleBack();
             }}
@@ -492,7 +497,7 @@ const DeveloperStorage = () => {
                     >
                       <span className="text-gray-700">{name}</span>
                       <Button
-                        className="bg-red-600 hover:bg-red-800 px-3 py-1"
+                        variant="destructive"
                         onClick={() => setDeleteConfirmSecret(name)}
                       >
                         Delete
@@ -533,7 +538,7 @@ const DeveloperStorage = () => {
                         Cancel
                       </Button>
                       <Button
-                        className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded"
+                        variant="destructive"
                         onClick={handleDeleteSecret}
                       >
                         Confirm Delete

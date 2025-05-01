@@ -380,7 +380,7 @@ export const FounderSignup = () => {
               <CardFooter className="flex justify-end space-x-4">
                 <Button 
                   type="button" 
-                  variant="outline"
+                  variant="destructive"
                   className="hover:bg-gray-100 transition-colors"
                 >
                   Cancel
@@ -388,7 +388,7 @@ export const FounderSignup = () => {
                 <Button 
                   type="submit"
                   disabled={!isFormValid()}
-                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity"
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity border-none"
                 >
                   Create Profile
                 </Button>

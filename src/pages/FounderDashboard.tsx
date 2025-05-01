@@ -162,7 +162,7 @@ export const FounderDashboard = () => {
 
         if (profileSnap.exists()) {
           const encryptedData = profileSnap.data();
-        
+
           const key = encryptedData.encryptionKey;
           if (!key) {
             toast({
@@ -172,11 +172,11 @@ export const FounderDashboard = () => {
             });
             return;
           }
-        
+
           // Decrypt function
           const decrypt = (cipher: string) =>
             CryptoJS.AES.decrypt(cipher, key).toString(CryptoJS.enc.Utf8);
-        
+
           // Decrypted profile
           const decryptedProfile: FounderProfile = {
             companyName: decrypt(encryptedData.companyName),
@@ -192,10 +192,9 @@ export const FounderDashboard = () => {
             uid: encryptedData.uid,
             photoURL: encryptedData.photoURL || "",
           };
-        
+
           setProfile(decryptedProfile);
         }
-        
 
         // Fetch applications for this founder's idea posts
         const applicationsRef = collection(db, "applications");
@@ -216,20 +215,18 @@ export const FounderDashboard = () => {
               return null;
             }
 
-            // 🔐 Fetch the encryption key for this developer
-            const keyRef = doc(db, `developers/${appData.developerId}`);
-            const keySnap = await getDoc(keyRef);
-            if (!keySnap.exists()) {
+            const encryptionKey = developerData.encryptionKey;
+            if (!encryptionKey) {
               console.warn(
                 `Encryption key missing for developer ${appData.developerId}`
               );
               return null;
             }
-            const { key } = keySnap.data();
 
             // 🔓 Decrypt profile fields
-            const decrypt = (data: string) =>
-              CryptoJS.AES.decrypt(data, key).toString(CryptoJS.enc.Utf8);
+            const decryptdev = (data: string) =>
+              CryptoJS.AES.decrypt(data, encryptionKey).toString(CryptoJS.enc.Utf8);
+            
 
             if (!developerData) {
               console.warn(
@@ -242,22 +239,27 @@ export const FounderDashboard = () => {
               id: appDoc.id,
               developerId: appData.developerId,
               ideaId: appData.ideaId,
-              name: `${decrypt(developerData.firstName)} ${decrypt(developerData.lastName)}`,
-              experience: decrypt(developerData.experience),
-              skills: decrypt(developerData.skills).split(',').map((s: string) => s.trim()) || [],
-              appliedDate: appData.createdAt?.toDate().toISOString().split('T')[0] || '',
+              name: `${decryptdev(developerData.firstName)} ${decryptdev(
+                developerData.lastName
+              )}`,
+              experience: decryptdev(developerData.experience),
+              skills:
+                decryptdev(developerData.skills)
+                  .split(",")
+                  .map((s: string) => s.trim()) || [],
+              appliedDate:
+                appData.createdAt?.toDate().toISOString().split("T")[0] || "",
               status: appData.status,
               coverLetter: appData.coverLetter,
               resume: appData.resume,
-              email: decrypt(developerData.email),
-              github: decrypt(developerData.github),
-              university: decrypt(developerData.university),
-              degree: decrypt(developerData.degree),
-              graduationYear: decrypt(developerData.graduationYear),
-              photoURL: developerData.photoURL || '',
-              whatsappNumber: appData.whatsappNumber || ''
+              email: decryptdev(developerData.email),
+              github: decryptdev(developerData.github),
+              university: decryptdev(developerData.university),
+              degree: decryptdev(developerData.degree),
+              graduationYear: decryptdev(developerData.graduationYear),
+              photoURL: developerData.photoURL || "",
+              whatsappNumber: appData.whatsappNumber || "",
             };
-            
           })
         );
 
@@ -284,14 +286,57 @@ export const FounderDashboard = () => {
 
   const handleProfileUpdate = async () => {
     if (!editedProfile || !location.state?.uid) return;
-
+  
     try {
       const db = getFirestore();
-      const profileRef = doc(db, "founders", location.state.uid);
-      await updateDoc(profileRef, editedProfile);
-
+      const uid = location.state.uid;
+      const profileRef = doc(db, "founders", uid);
+  
+      // 🔐 Fetch encryption key from the same document
+      const keySnap = await getDoc(profileRef);
+      if (!keySnap.exists()) {
+        toast({
+          title: "Missing Key",
+          description: "Encryption key not found. Cannot update profile.",
+          variant: "destructive",
+        });
+        return;
+      }
+  
+      const { encryptionKey: key } = keySnap.data();
+  
+      if (!key || typeof key !== "string") {
+        toast({
+          title: "Invalid Key",
+          description: "Stored encryption key is invalid.",
+          variant: "destructive",
+        });
+        return;
+      }
+  
+      // 🔐 Encrypt updated profile fields
+      const encryptedUpdate = {
+        companyName: CryptoJS.AES.encrypt(editedProfile.companyName, key).toString(),
+        companyWebsite: CryptoJS.AES.encrypt(editedProfile.companyWebsite, key).toString(),
+        companySize: CryptoJS.AES.encrypt(editedProfile.companySize, key).toString(),
+        fundingStage: CryptoJS.AES.encrypt(editedProfile.fundingStage, key).toString(),
+        equityRange: CryptoJS.AES.encrypt(editedProfile.equityRange, key).toString(),
+        salaryRange: CryptoJS.AES.encrypt(editedProfile.salaryRange, key).toString(),
+        roleDescription: CryptoJS.AES.encrypt(editedProfile.roleDescription, key).toString(),
+        techStack: CryptoJS.AES.encrypt(editedProfile.techStack, key).toString(),
+        experienceRequired: CryptoJS.AES.encrypt(editedProfile.experienceRequired, key).toString(),
+        email: CryptoJS.AES.encrypt(editedProfile.email, key).toString(),
+        photoURL: editedProfile.photoURL || "",
+        updatedAt: new Date().toISOString(),
+      };
+  
+      // 🔄 Update encrypted profile
+      await updateDoc(profileRef, encryptedUpdate);
+  
+      // Set decrypted profile locally for UI
       setProfile(editedProfile);
       setIsEditing(false);
+  
       toast({
         title: "Success",
         description: "Company profile updated successfully",
@@ -305,7 +350,7 @@ export const FounderDashboard = () => {
       });
     }
   };
-
+  
   const validateIdeaPost = (idea: IdeaPost | null): boolean => {
     if (!idea) return false;
 
@@ -529,7 +574,7 @@ export const FounderDashboard = () => {
                           className={`capitalize ${
                             activeTab === status
                               ? "bg-primary hover:bg-primary/90"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-primary"
                           }`}
                         >
                           {status}
@@ -588,6 +633,7 @@ export const FounderDashboard = () => {
                                 <div className="flex space-x-2">
                                   <Button
                                     variant="default"
+                                    className=" border-2 border-green-600 bg-green-600 hover:bg-white hover:text-green-600 hover:border-green-600"
                                     onClick={() =>
                                       handleUpdateApplicationStatus(
                                         candidate.id,
@@ -1115,6 +1161,7 @@ export const FounderDashboard = () => {
                 <div className="flex justify-end space-x-4">
                   <Button
                     variant="default"
+                    className="bg-green-600 border-2 border-green-600 hover:bg-white hover:text-green-600"
                     onClick={() => {
                       handleUpdateApplicationStatus(
                         selectedCandidate.id,

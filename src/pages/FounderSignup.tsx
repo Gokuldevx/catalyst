@@ -137,7 +137,7 @@ export const FounderSignup = () => {
 
       toast({
         title: "Profile Created",
-        description: "Your recruiter profile has been created successfully!",
+        description: "Your founder profile has been created successfully!",
       });
 
       navigate('/founderdashboard', { 
@@ -249,7 +249,7 @@ export const FounderSignup = () => {
                   Founder Profile
                 </h2>
                 <p className="mt-2 text-center text-gray-600">
-                  Let's create your recruiter profile to find talented developers
+                  Let's create your founder profile to find talented developers
                 </p>
               </CardHeader>
               <CardContent className="space-y-8">

@@ -12,6 +12,17 @@ type AuthProps = {
   userType: 'developer' | 'founder'
 }
 
+const testGitHubAuth = async () => {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+    console.log('GitHub Auth Result:', result);
+  } catch (error) {
+    console.error('GitHub Auth Error:', error);
+  }
+};
+
+
+
 export function Auth({ userType }: AuthProps) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<'google' | 'github' | null>(null)
@@ -34,6 +45,7 @@ export function Auth({ userType }: AuthProps) {
         // GitHub provider data includes the username in the displayName
         githubUsername = result.user.providerData[0].displayName || '';
       }
+      console.log('Provider Data:', result.user.providerData);
 
       const userData = {
         name: result.user.displayName || '',

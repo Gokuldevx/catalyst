@@ -47,15 +47,15 @@ export const createJobListing = async (jobData: JobData) => {
     const recruiterRef = doc(db, 'recruiters', jobData.recruiterId);
     const recruiterDoc = await getDoc(recruiterRef);
     
-    console.log('Recruiter document exists:', recruiterDoc.exists()); // Debug log
+    console.log('Founder document exists:', recruiterDoc.exists()); // Debug log
     
     if (!recruiterDoc.exists()) {
-      console.error('Recruiter document not found');
-      throw new Error('User is not registered as a recruiter');
+      console.error('Founder document not found');
+      throw new Error('User is not registered as a founder');
     }
 
     const recruiterData = recruiterDoc.data();
-    console.log('Recruiter data:', recruiterData); // Debug log
+    console.log('Founder data:', recruiterData); // Debug log
     
     const timestamp = serverTimestamp();
     
